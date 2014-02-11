@@ -1,0 +1,411 @@
+﻿##
+# AROMA Installer 2.70 - AROMA Installer Configuration
+#       (c) 2011-2012 by Ahmad Amarullah
+#           amarullz - xda-developers
+#           http://www.amarullz.com/
+#
+#       Binary Version  : 2.70B
+#       Binary Codename : Flamboyan
+##
+#ini_set("force_colorspace","bgra");
+
+#ini_set("force_colorspace","argb");
+
+# Forcing Device Pixelate Size
+# default: floor( min( width, height ) / 160 )
+#
+# Usefull for tablet device, if interface was too big, you can
+# force dp size for smaller UI size.
+#
+ini_set("dp","4");
+#
+
+theme("cromix");
+ini_set("rom_name",              "CROMi-Xenogenesis");
+ini_set("rom_version",           "5.4 DEODEX");
+ini_set("rom_author",            "sbdags");
+ini_set("rom_device",            "Asus Transformer TF700T/TF300T(GL)/TF201/ME301T");
+ini_set("rom_date",              "01/02/2014");
+
+splash(
+   3000,
+   "splash"
+);
+
+fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "9" );
+fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "10" );
+
+viewbox(
+    "Welcome",
+    "You are about to flash <b>"+
+	  ini_get("rom_name")+
+	"</b> for the <b>"+sysprop("ro.product.model")+"</b>.\n\n"+
+    
+      "VERSION\t\t\t: <b><#selectbg_g>"+ini_get("rom_version")+"</#></b>\n"+
+      "AUTHOR \t\t\t: <b><#selectbg_g>"+ini_get("rom_author")+"</#></b>\n"+
+	  "DEVICES \t\t\t: <b><#selectbg_g>"+ini_get("rom_device")+"</#></b>\n"+
+      "RELEASED\t\t: <b><#selectbg_g>"+ini_get("rom_date")+"</#></b>\n\n\n"+
+	  
+	  "MODEL\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.model")+"</#></b>\n"+
+      "NAME\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.name")+"</#></b>\n"+
+      "DEVICE\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n"+
+      "BOARD\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.board")+"</#></b>\n"+
+      "MANUFACTURER\t: <b><#selectbg_g>"+sysprop("ro.product.manufacturer")+"</#></b>\n"+
+      "CPU\t\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.cpu.abi")+"</#></b>\n\n"+
+      "SYSTEM Size\t\t: <b><#selectbg_g>"+getdisksize("/system","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/system","m")+" MB</#></b>\n\n"+
+      "DATA Size\t\t\t: <b><#selectbg_g>"+getdisksize("/data","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/data","m")+" MB</#></b>\n\n"+
+      "SDCARD Size\t\t: <b><#selectbg_g>"+getdisksize("/external_sdcard","m")+" MB</#></b>\n"+
+        "\tFree\t\t\t: <b><#selectbg_g>"+getdiskfree("/external_sdcard","m")+" MB</#></b>\n\n"+
+	
+    "Press <b>Next</b> to Continue the Installation...\n",
+    "@welcome"
+);
+
+menubox(
+  "Device Selection",
+  "Please choose your device : "+sysprop("ro.product.model"),
+  "@confirm",
+  "device.prop",
+  "Asus Transformer Infinity TF700T","","@update",
+  "Asus Transformer Prime TF201","","@update",
+  "Asus Transformer Pad TF300T","","@update",
+  "Asus Transformer Pad TF300TG/L","","@update",
+  "Asus Memo Pad Smart 10 ME301T","","@update"
+  
+);
+
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+  fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "11" );
+  fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "12" );
+else
+  fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "8" );
+  fontresload( "1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "8" );
+endif;
+
+textbox(
+  "Changelog Info",
+  "Changelog",
+  "@update",
+  resread("changelog.txt")
+);
+
+#Flash Options
+menubox(
+  "Pre-Flash Options",
+  "Please select:",
+  "@confirm",
+  "wipe.prop",
+  "Install with Wipe of Dalvik Cache and Cache","RECOMMENDED","@update",
+  "Install with Wipe of only Cache","","@alert",
+  "Exit Back to Recovery","","@welcome"
+
+);
+
+if
+    file_getprop("/tmp/aroma-data/wipe.prop","selected") == "3"
+then
+    exit("");
+endif;
+
+#Kernels
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+    selectbox(
+    "Kernel",
+    "Must Choose One!",
+    "@personalize",
+    "kernel.prop",
+    
+    "TF700 Kernels", "", 2,
+    "_that stock 10.6.1.14.8 Modded Kernel v4","Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",1,
+    "_that OC 10.6.1.14.10 Modded Kernel v7","OC, Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",0,
+    "Hunds OC 10.6.1.14.10 Modded Kernel v3.4.4 BETA","With App by Hundsbuah",0,
+    "Hunds Extreme Tweaks OC 10.6.1.14.10 Kernel v3.4.3 BETA","With App by Hundsbuah/LetMeKnow",0,
+    "ASUS 10.6.1.27.5 Stock Kernel","By sbdags (Not Data2SD/Rom2SD Compatible)",0,
+    "Do Not Flash a Kernel","",0,
+
+    "Data2SD/Rom2SD - Must have EXT4 partitions on SDCard", "", 2,
+    "Install normal CROMi-X","Install /data & /system internally as normal",1,
+    "Install Data2SD","Install /data to microSD",0,
+    "Install Rom2SD","Install /data & /system to microSD - allow dual booting ROMs",0,
+    "Install Rom2SD compatibility mode","Install /data & /system to internal - allow recognition of ROM on microSD",0
+
+);
+else
+    selectbox(
+    "Kernel",
+    "Must Choose One!",
+    "@personalize",
+    "kernel.prop",
+    
+    "TF201, TF300, TF300TG/L, ME301T Kernels", "", 2,
+    "_that stock 10.6.1.14.8 Modded Kernel v4","Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",1,
+	"_that OC 10.6.1.14.10 Modded Kernel v7","OC, Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",0,
+    "Hunds OC 10.6.1.8 Modded Kernel","With App by Hundsbuah (Not compatible with TF300TG/L)",0,
+    "ASUS 10.6.1.27.5 Stock Kernel","By sbdags (Not Data2SD/Rom2SD Compatible)",0,
+    "Do Not Flash a Kernel","",0,
+
+    "Data2SD/Rom2SD - Must have EXT4 partitions on SDCard", "", 2,
+    "Install normal CROMi-X","Install /data & /system internally as normal",1,
+    "Install Data2SD","Install /data to microSD",0,
+    "Install Rom2SD","Install /data & /system to microSD - allow dual booting ROMs",0,
+    "Install Rom2SD compatibility mode","Install /data & /system to internal - allow recognition of ROM on microSD",0
+
+);
+endif;
+
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1" &&
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
+  then
+    selectbox(
+    "OC Kernel",
+    "Must Choose One!",
+    "@personalize",
+    "speed.prop",
+    
+    "_that OC Kernel Speeds", "", 2,
+    "_that 1518","Power Save 1GHz, Balanced 1.5GHz, Performance 1.8GHz",1,
+    "_that 1315","Power Save 1GHz, Balanced 1.3GHz, Performance 1.5GHz",0,
+    "_that 1318","Power Save 1GHz, Balanced 1.3GHz, Performance 1.8GHz",0
+
+);
+endif;
+
+#Edition
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1" &&
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
+  then
+    selectbox(
+    "Extreme Tweaks Edition",
+    "Must Choose One!",
+    "@personalize",
+    "edition.prop",
+  
+    "WW ET Build","Extreme Tweaks Edition, fsync disabled, CPU and GPU Over-Volted, Agressive Memory Mgmt",1,
+    "US ET Build","Extreme Tweaks Edition, fsync disabled, CPU and GPU Over-Volted, Agressive Memory Mgmt",0
+  
+    );
+  else
+    selectbox(
+    "Locale Edition",
+    "Must Choose One!",
+    "@personalize",
+    "edition.prop",
+  
+    "WW Build","World Wide Edition",1,
+    "US Build","North American USA Edition",0
+  
+    );
+endif;
+
+#DPI
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+  selectbox(
+  "DPI Dots Per Inch",
+  "Must Choose One!",
+  "@personalize",
+  "dpi.prop",
+  "240 DPI - Stock Sized Fonts and Icons","",0,
+  "224 DPI - Medium Sized Fonts and Icons","",0,
+  "213 DPI - Medium Small Sized Fonts and Icons","",1,
+  "200 DPI - Small Sized Fonts and Icons","",0,
+  "180 DPI - Smaller Sized Fonts and Icons","",0,
+  "160 DPI - Tiny Sized Fonts and Icons","",0
+    
+   );
+
+else
+  selectbox(
+  "DPI Dots Per Inch",
+  "Must Choose One!",
+  "@personalize",
+  "dpi.prop",
+  "160 DPI - Stock Sized Fonts and Icons","",1,
+  "148 DPI - Medium Small Sized Fonts and Icons","",0,
+  "136 DPI - Small Sized Fonts and Icons","",0
+  
+  );
+endif;
+
+selectbox(
+  "Boot Animations",
+  "Must Choose One!",
+  "@customize",
+  "boot.prop",
+  "CROMi-X Asus Bios","",0,
+  "CROMi-X Blue Fire & Water","",0,
+  "CROMi-X Blue Fire","",0,
+  "CROMi-X Yellow","",0,
+  "CROMi-X Asus Stock","",1,
+  "Google Nexus","",0
+  
+);
+
+checkbox(
+  "Launchers",
+  "Choose as many as you want!",
+  "@customize",
+  "launcher.prop",
+  "miniCROMi-X Stock Launcher","Lite Version of Asus Stock",1,
+  "Asus Stock Launcher","",0,
+  "Apex Launcher","",0,
+  "Nova Launcher","",0,
+  "ADW Launcher","",0
+  
+);
+
+checkbox(
+  "Keyboards",
+  "Choose one unless you have a third party app installed!",
+  "@customize",
+  "keyboard.prop",
+  "Asus Keyboard","Non-US Keyboard Dock layouts require this",1,
+  "Google Keyboard","Stock Keyboard from the Play Store",1
+  
+);
+
+checkbox(
+  "Asus Apps - Scroll down to see all",
+  "Check the ones you want",
+  "@apps",
+  "asus.prop",
+  "Asus Email & Exchange","",1,
+  "Asus File Manager","",1,
+  "Asus MyFrame","",1,
+  "Asus Desk Clock and Widget","",1,
+  "Asus Weather Widget","Compatible with Stock Launcher",1,
+  "Asus Battery Widget","",0,
+  "Asus SuperNote","",0,
+  "Asus Calendar","Will over-write the Google Calendar",0,
+  "Asus App Back Up","",0,
+  "Asus App Locker","",0,
+  "Asus MyCloud including Splashtop","",0,
+  "Asus MyNet","",0,
+  "Asus Video Editor (Movie Studio)","",0,
+  "Asus Web Storage","",0,
+  "Asus MyDictionary","",0,
+  "Asus MyLibrary (Asus Reader)","Please use 160/240 DPI",0,
+  "Asus Screensaver","",0,
+  "Asus Live Wallpapers","MyWater, MyWater2, Asus Dayscene",0,
+  "Asus Taskmanager","",0,
+  "Asus Parental Lock","",0
+  
+);
+
+checkbox(
+  "Google Apps - Scroll down to see all",
+  "Check the ones you want",
+  "@apps",
+  "google.prop",
+  "Google Now and Voice Search","",1,
+  "Google Music","",1,
+  "Google News and Weather Genie","",1,
+  "YouTube","",1,
+  "Google Maps","",1,
+  "Google Street View for Google Maps","",0,
+  "Google Mail","",0,
+  "Google Talk","",0,
+  "Google Live Wallpapers","Holo Spiral, Galaxy, Sunbeam and Google default",0,
+  "Picasa","",0,
+  "FaceLock","",0,
+  "Google Desk Clock and Widget","Overwrites the Asus Desk Clock and Widget",0
+  
+); 
+
+checkbox(
+  "Misc Apps",
+  "Check the ones you want",
+  "@apps",
+  "misc.prop",
+  
+  "Apps installed to /system/app","","2",
+  "Adobe Flash","Now installed to /data for compatibility",1,
+  "ES File Explorer","",1,
+  "Keyboard Manager","Keeps correct layout of dock keyboard",1,
+  "Polaris Office","",0,
+  
+  "Apps installed to /data/app","","2",
+  "Titanium Backup","",0,  
+  "DropBox","",0,
+  "Terminal Emulator","",0,
+  "LMT - Pie Control Launcher","",0
+
+);
+
+selectbox(
+  "Sound Managers",
+  "Must choose one1",
+  "@personalize",
+  "sound.prop",
+  
+  "Sound Manager Options","","2",
+  "Music FX","Stock Default",0,
+  "DSP Manager","Sound Manager, Equaliser, Bass Boost, etc",1,
+  "X-Loud Audio Mod","Very Loud Volume Boost, Equaliser, Bass Boost, etc",0
+);
+
+checkbox(
+  "Tweaks and Scripts",
+  "Check the ones you want - Scroll down to see all",
+  "@personalize",
+  "tweak.prop",
+
+	"Tweaks","","2",
+	"Browser2Ram","Speeds up Stock, Chrome, Firefox, Dolphin & 14 other Browsers","1",
+	"Hide SD Card and Dock Notifications","This installs modified system apps which remove the notification icons","1",
+	"Ad Block Hosts File","This installs a file that blocks most Ads","1",
+	"Zip Align Apps","Script to optimize apk files internally","0",
+	"Keyboard Dock DEL and ALT Key Remapping","LOCK = DEL & SEARCH = ALT","0",
+ 
+	"Apps","","2",
+	"AdAway App","This installs an app for you to control Ads yourself","1",
+	"Xposed Framework","Allows you to apply many tweaks found in Xposed Modules",0,
+ 
+	"Hard Core Tweaks - Install with caution - experimental!","","2",
+	"IO Tweak: Disable fsync","Speeds up IO read/writes to internal SD but can cause data corruption","0",
+	"GPU Rendering : Disable Software Rendering","Forces rendering to be done by GPU rather than CPU","0",
+	"CPU UV : Under-Volt CPU by 50mV","Better battery life but can cause instability especially if over-clocking","0",
+	"CPU OV : Over-Volt CPU by 50mV","Only works Hunds kernels and overclocking","0",
+	"GPU UV : Under-Volt GPU by 25mV","Only works with Hunds kernels","0",
+	"Cache2SD","Speeds up installed apps by caching to MicroSD rather than to internal SD - NEEDS A FAST SD CARD","0"
+
+);
+
+ini_set("text_next", "Install now");
+
+viewbox(
+  "Ready to install",
+  "You are now ready to begin installation.\n\n"+
+  "Press <b>Install now</b> to start.\n\n"+
+  "If you want to review or change any of your installation settings, press <b>Back</b>.",
+  "@install"
+  
+);
+
+ini_set("text_next", "Next");
+
+install(
+  "Installing",
+  "Installing CROMi-Xenogenesis...\nPlease Wait until it Finishes...",
+  "@install"
+  
+);
+ini_set("text_next", "Finish");
+
+viewbox(
+  "Installation Completed",
+  "<b><#selectbg_g>Congratulations...</#></b>\n\n"+
+  "CROMi-Xenogenesis has been installed successfully.\n\n"+
+  "Press Finish, Reboot and Inherit!\n\nEnjoy your tablet!",
+  "@info"
+  
+);

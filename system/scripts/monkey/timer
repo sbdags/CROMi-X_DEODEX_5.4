@@ -1,0 +1,34 @@
+#!/bin/sh
+
+log=$1
+time=$2
+
+trap "" HUP
+
+echo "LogPath : $log"
+echo "CountDown Timer : $time Second"
+
+echo "-16" > /proc/$$/oom_adj
+sleep $time
+
+pid=`ps | /bin/grep monkey | /bin/awk '{print $2}'`
+
+if [ "$pid" == "" ]; then
+	echo "monkey_test timer: monkey died!"
+	exit 0
+fi
+
+/bin/kill $pid
+
+echo "############################################################################" > $log
+echo "##" >> $log
+echo "##               Time's up! Monkey success! ($time seconds)" >> $log
+echo "############################################################################" >> $log
+echo "==================  /proc/meminfo  =================" >> $log
+cat /proc/meminfo >> $log
+echo "================= procrank ==================" >> $log
+procrank >> $log
+
+reboot
+
+exit 0

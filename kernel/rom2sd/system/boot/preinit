@@ -1,0 +1,14 @@
+#!/system/bin/sh
+
+# preinit: only /sys and /system are mounted (ro), / is still rw
+
+PATH=/sbin:/system/bin:/system/xbin
+
+# auto-detect rom2sd
+if [ -d /sys/block/mmcblk1/mmcblk1p3 ]; then
+  echo "\nsystem/boot/preinit: mmcblk1p3 detected, setting up for ROM2SD.\n"
+  mkdir /datai
+  cp /system/boot/rootfs_rom2sd/* /
+fi
+
+# /system/boot/preshell

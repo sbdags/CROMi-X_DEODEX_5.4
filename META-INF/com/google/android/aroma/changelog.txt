@@ -1,0 +1,383 @@
+<b><#selectbg_g>CROMi-X Changelog:</#></b>
+<b><#selectbg_g>01/02/2014 - v5.4 CROMi-X</#></b>
+o	Removed CROMi-Control app. After discussions with elesbb he will redevelop as an xposed module
+o	Reverted Framework (framework.jar, services.jar, systemui.apk, transformer.apk) to pre-cromi-control versions
+o	Modded systemui.apk and transformer.apk to allow sd card and dock notifications to be removed as an option in installer
+o	Rebuilt Stock Launcher Lite version -  3 Screens ONLY, New Beach Wallpaper, 4.2 Gui gets 9x6 workspace and draw icons, removed google bar and page indicator
+o	Fixed framework-res.apk wallpaper inconsistencies. Tree definitely gone now and beach wallpaper formatted correctly
+o	Updated Superuser and binary to latest version 1.91
+o	Fixed issue of ET installation locked into 213 DPI
+o	Fixed search options missing - Reinstated QuickSearch from Asus
+o	Minor build.prop fix to remove duplicate entry
+o	Fixed build.prop for TF300T US users as it was showing the wrong version
+
+<b><#selectbg_g>18/01/2014 - v5.3 CROMi-X</#></b>
+o	Recompiled framework-res.apk with TF701T default wallpaper. Goodbye Asus Tree ;)
+o	Fixed Google Keyboard not defaulting on clean install when Asus keyboard is not installed
+o	Fixed the minutes of lag after installing apps from the play store - it's seconds now - but much better now
+o	Fixed older version of hunds app in deodex version
+o	Fixed older version of GPU UV in odex version
+o	Fixed missing battery widget on odex version
+o	Extracted libs from Google Keyboard so it can go back to /system/app
+o	Extracted libs from Google Search so velvet.apk can go back to system/app
+o	Updated and Extracted libs from Google Framework Services so GmsCore.apk can go back to system/app
+o	Changes to 50CleanTWeaks script for vm tweaks - should do much better with lag. See below url for explanations
+	https://www.kernel.org/doc/Documentation/sysctl/vm.txt
+	Removed the following kernel tweaks - probably better leaving them default for now:
+		echo "0" > /proc/sys/vm/panic_on_oom
+		echo "0" > /proc/sys/vm/laptop_mode
+		/system/xbin/sysctl -w vm.drop_caches=3
+	Changed
+		/system/xbin/sysctl -w vm.dirty_ratio=90 from 22
+		/system/xbin/sysctl -w vm.dirty_background_ratio=70 from 4
+		/system/xbin/sysctl -w vm.min_free_kbytes=5572 from 4096
+		/system/xbin/sysctl -w vm.vfs_cache_pressure=10 from 50
+		/system/xbin/sysctl -w vm.dirty_expire_centisecs=200 from 3000
+		/system/xbin/sysctl -w vm.dirty_writeback_centisecs=500
+o	Re-added optimized remounts on boot on /data /cache and /system
+o	Updated the 3D processing fps limits from LetMeKnow in CPU2.sh and CPU3.sh
+	logi "setprop persist.tegra.NV_FPSLIMIT 1"
+	setprop persist.tegra.NV_FPSLIMIT 1
+	logi "setprop persist.sys.NV_FPSLIMIT 90"
+	setprop persist.sys.NV_FPSLIMIT 90
+o	Build.prop edits:
+	Removed:
+		windowsmgr.max_events_per_sec=200
+		wifi.supplicant_scan_interval=180
+		persist.android.strictmode=0
+		ro.vold.umsdirtyratio=20
+		ro.ril.disable.power.collapse=0
+		com.qc.hardware=true
+		debug.enabletr=true
+		debug.sf.hw=true
+		net.tcp.buffersize.default=4096,87380,256960,4096,16384,256960
+		net.tcp.buffersize.edge=4096,87380,256960,4096,16384,256960
+		net.tcp.buffersize.gprs=4096,87380,256960,4096,16384,256960
+		net.tcp.buffersize.umts=4096,87380,256960,4096,16384,256960
+		net.tcp.buffersize.wifi=4096,87380,256960,4096,16384,256960
+		windowsmgr.support_rotation_270=true
+o	Updated Extreme Tweaks version to 1.6. Thanks LetMeKnow.
+o	Updated ES FIle Explorer to version 3.0.9.1
+o	Updated YouTube to version 5.3.32
+o	Updated Google Text to Speech to latest version
+o	Updated Gravity Box to version 2.9.2
+o	Fixed Xposed not loading after a clean install - modules still need to be toggled off/on and a single reboot per module
+o	Removed lagfix. Since I stopped using it I have not had any data corruption. It's on the play store if you want it
+
+<b><#selectbg_g>05/01/2014 - v5.2.4 CROMi-X</#></b>
+o	Fixed Adobe Flash Player so works with Amazon Prime. Now loaded to /data for compatibility
+o	Updated Hosts file for adblocking option
+o	Updated ES File Explorer to version 3.0.9.0
+o	Updated Titanium Backup to version 6.1.5.2
+o	Updated You Tube to version 5.3.28
+o	Updated SuperUser and binary to version 1.86
+o	Updated DropBox to version 2.3.12
+o	Updated Google Play Store to version 4.5.10 for non TF700 users
+o	Updated Gravity Box to version 2.8.5
+o	Updated Hunds kernel to version 3.4.4 beta
+o	Updated latest Lucius Tweaks for non ET versions. Thanks lucius.zen
+	changed scheduler to SIO for Hunds based kernels and tcp congestion control to lp
+	changed OV table values for CPU and GPU
+o	Tweaked vm settings in init.d scripts to see if it eliminates some lag
+	/system/xbin/sysctl -w vm.dirty_ratio=22
+	/system/xbin/sysctl -w vm.dirty_background_ratio=4
+	/system/xbin/sysctl -w vm.dirty_expire_centisecs=3000
+	/system/xbin/sysctl -w vm.dirty_writeback_centisecs=500
+o	Moved UserDictionaryProvider back to /system/app to fix Thumb Keyboard issues - thanks meldrak
+o	Updated libAppDataSearch.so and libgames_rtmp_jni.so in /system/lib to stop google play service redownloading. Thanks meldrak
+o	Fixed Stock Browser with better compiled version - helps search bar consistency. Thanks meldrak
+o	Replaced QuickSearch functionality with better version. Thanks meldrak
+o	Recompiled the AsusReader.apk with Alice in Wonderland epub removed. :) Still creates a 0 byte stub :(
+o	Updated cache2sd scripts to version 1.5. Thanks meldrak. Thread is here http://forum.xda-developers.com/showthread.php?t=2258050
+o	Added Keyboard Dock remapping option to installer - LOCK key = DELETE and SEARCH key = LEFT ALT
+
+<b><#selectbg_g>16/12/2013 - v5.2.3 CROMi-X</#></b>
+o	Updated CROMi-Control to fix the reboot issues. Thanks elesbb
+o	Updated Hunds TF700T kernel to version 3.4.3
+o	Updated LetMeKnow's ET to Hunds 3.4.2 v1.5
+o	Moved the XT9 user databases to the Asus Keyboard installer
+o	Updated read ahead values for stock based kernels to 4096KB for internal and 6144KB for external SD
+o	Removed redundant sysctl entries in 50CleanTweaks (Both normal and ET). Thanks lucius.zen
+o	Set midrange_freq = 760000, max_normal_freq = 1300000, timer_rate = 20000 and min_sample_time = 40000 in 50CleanTweaks. Thanks lucius.zen
+o	Changed the default hunds hotplug interface settings to 2 4 6. LMK's ET is still set to 0 0 0
+o	Zipaligned all apks in the ROM
+o	Updated Google Music to version 5.3.1316M
+o	Updated Google Keyboard to version 2.0.19133.927933a
+o	Updated Google Maps to version 7.5.0
+o	Updated Google Calendar to version 201308023
+o	Updated Google Mail to version 4.6
+o	Updated multi-dpi playstore to version 4.5.10
+o	Updated ESFileExplorer to version 3.0.7.0
+o	Updated Keyboard Manager to version 2.11
+o	Updated Xposed Installer to version 2.4.1
+o	Updated Xposed GravityBox to version 2.8.1
+o	Updated SuperUser to version 1.85
+o	Fixed ThumbKeyboard issues - thanks meldrak
+
+<b><#selectbg_g>05/12/2013 - v5.2.2 CROMi-X</#></b>
+o	Updated thatv6 kernel to thatv7 test for sdcard fixes and tcp congestion control
+o	Updated TF700 Hunds Kernel to version 3.4.2 Beta
+o	Updated LetMeKnow's TF700 ET to version 1.3 and best bits from 1.4
+o	Updated 50CleanTweaks Init.d script (thanks LMK and lucius.zen):
+	/system/xbin/sysctl -w fs.file-max=131072
+	/system/xbin/sysctl -w fs.inotify.max_queued_events=32768
+	/sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load=85
+	/sys/devices/system/cpu/cpufreq/interactive/max_boost=1800000
+	/sys/devices/system/cpu/cpufreq/interactive/midrange_freq=900000
+	/sys/devices/system/cpu/cpufreq/interactive/midrange_go_maxspeed_load=65
+o	Set swapiness back to 0
+o	Set read ahead KB to 4096KB
+o	Dropped GPU UV by 15mV - 45mV in 91GPUUV init.d script
+o	Dropped CPU OV by 10mV - 40mV in 89OV init.d script
+o	Updated file system tuning tweaks in installer (should fix kernel forced reboots to reoptimize)
+o	Changed TCP congestion algorithm to westwood for all versions (should help wifi performance)
+o	Updated Google Keyboard to version 2.0.19123.914326a
+o	Updated YouTube to version 5.3.24
+o	Updated Titaninum Backup to version 6.1.4.3
+o	Updated dropbox to version 2.3.11.4
+o	Updated SuperUser app and binary to version 1.80
+o	Updated Google Services to latest version
+o	Updated Android Terminal to version 1.0.54
+
+<b><#selectbg_g>17/11/2013 - v5.2a CROMi-X</#></b>
+o	Fixed rebooting issue when flashing _thatv4 kernel (v5.2a)
+o	Fixed the missing Settings Status which was causing force closes
+o	Fixed WiFi slowing down after sleep issues - thanks LMK
+o	Fixed missing keyboard permissions
+o	Fixed Android is Upgrading message on every boot for ODEX version
+o	Fixed missing busy box symlinks
+o	Fixed ROM2SD installer script - installs the correct pre-init script to internal /system/boot
+o	Updated and resized the Stock Bootanimation to the new TF700T JB4.3 Asus Stock
+o	Updated _thatv5 kernel to newer _thatv6 rebased to 10.6.1.14.10 and 4.3 compatibility
+o	Updated CleanTweaks interactive governor control to go max a little earlier
+o	Updated Google Play Services to latest version
+o	Upated SuperUser and SU binary to version 1.69
+o	Added Android Terminal Emulator to ROM as option
+o	Moved libereader.so to Asus Reader option
+o	Moved FaceLock to be an option in the installer
+
+<b><#selectbg_g>10/11/2013 - v5.1.2 CROMi-X</#></b>
+o	Fixed build.prop files to have correct version for all devices
+o	Fixed issues re-optimizing dalvik cache on reboot for ODEX users
+o	Added Rom2SD compatibility to ROM. Thanks to _that. You must use Gparted to create Fat32, EXT4 and EXT4 partitions and be on your fast microsd
+o	Added miniCROMi-X Launcher - debloated Asus Launcher (all wallpapers removed and one TF701T added)
+o	Updated LetMeKnow's ET to version 1.1
+o	Updated EXT 4 tuning options to safer data journaling enabled versions in the installer
+o	Updated fix from LMK for slow wifi performance for all editions
+o	Updated CleanTweaks fs.file-max=65536 as recommnded setting for 1GB RAM
+o	Updated CleanTweaks interactive governor control to be a bit more battery friendly
+o	Updated the egl.cfg file for the GPU Rendering : Disable Software Rendering option
+o	Updated Hunds App to version 2.4
+o	Updated Google Boot Animation to larger size
+o	Updated Google Play Services to version 4.0.31
+o	Updated Google Keyboard to version 2.0.18933.905102a
+o	Updated Google Calendar to version 201306302
+o	Updated Google Maps to version 7.4.0
+o	Updated Google Music to version 5.2.1301L
+o	Updated Titanium Backup to version 6.1.3
+o	Updated ES File Explorer to version 3.0.6.0
+o	Updated AdAway to version 2.8
+o	Updated AdBlocking Hosts file to http://winhelp2002.mvps.org November version
+o	Updated GravityBox for Xposed to version 2.6.9
+o	Moved Google Keyboard and Libraries to be an option
+o	Moved Google Live Wallpapers to be an option
+o	Moved Asus Email, Exchange and Widget to be an option
+o	Moved Asus Keyboard and Libraries to be an option
+o	Moved Asus Taskmanager to be an option
+o	Moved Asus Battery Widget to be an option
+o	Removed mms.apk and phone.apk as not required
+o	Removed the TF701T Weather Widget and App - will offer as a separate download
+o	Removed ES File explorer classic theme - you can download this from the store
+o	Removed GoLauncher HD - hasn't been updated in a year and who uses it really?
+o	Updated ME301T audio and camera modules from 10.6.1.31 for MemoPad 10 users
+
+<b><#selectbg_g>28/10/2013 - v5.1.1 CROMi-X</#></b>
+o	Updated missing auto brightness profiles from Deodex version
+o	Updated auto brightness profiles for Prime to match Infinity ones
+o	Changed Rom Build Name as breaks TWRP backup naming convention
+o	Updated CROMi-Control to version with fixed Res Changer - thanks elesbb
+o	Updated Google Play Store to version 4.3.11 for non TF700 users
+o	Fixed PlayStore reverting to older version for TF700 users and updated to Multi-DPI version 4.4.21
+o	Moved updated Google Play Services to /system/app - solves issues of update on new install
+o	Updated GravityBox Xposed Module to version 2.6.5
+o	Updated YouTube to version 5.2.27
+o	Updated Google Music to version 5.2.1233L
+o	Updated Google Maps to version 7.3.0
+o	Updated Asus Reader to TF701T version
+o	Recompiled Asus Apps with TF701T equivalent App Icons
+	(Browser, Email, Calculator, Download Manager, File Manager, Contacts, Settings, Sound Recorder, Calendar, Gallery, Camera)
+o	Removed GMSCore.apk (Google+) as redundant in /system/app
+o	CROMi-X Bios bootanimation speed improvements
+o	Switched the data2sd card layout to hunds method as a bit more logical than _thats - one consistant approach now
+o	Rom now wipes cache on every install - option in installer is now only for dalvik cache
+
+Extracted TF701T Wallpapers  - available in a separate download - just extract to microsd and use gallery to set as wallpaper
+
+<b><#selectbg_g>13/10/2013 - v5.1 CROMi-X</#></b>
+o	Rebased from Asus Stock 10.6.1.27.5 so updated to version 5.1
+o	Re-Odexed as new framework base & recompiled Asus Browser with speed tweaks
+o	Updated CROMi Control to version 1.0.2. Thanks elesbb
+o	Updated the Asus Weather app to the one from the new TF701T Tegra 4 rom as a trial
+o	Updated Hunds App to version 2.3
+o	Updated TF700 Hunds Kernel to version 3.4.1
+o	Updated LetMeKnow's Extreme Tweaks v1.0 with Hunds 3.4 kernel
+o	Updated Xposed Installer to version 2.3.1
+o	Updated Xposed Module GravityBox to version 2.6.1
+o	Updated Titanium Backup to version 6.1.1
+o	Updated cache2sd to v1.4. Thanks meldrak. Don't run this if you are already using data2sd
+o	Fixed missing incorrect symlinks for Hulu Plus fix - thanks flumpster
+o	Fixed SD-EXT shows correct size in installer now if you have an EXT partition on the sd card
+o	Fixed BlueTooth name - no longer Nexus 4 by default
+o	Removed Rebooter app as could be causing data corruption with fsync disabled
+<b>ChangeLog from Asus:</b> 
+1.	Improve system stability
+2.	Update Polaris Office to v4.0.5030, to fix Spanish IME issue with keyboard dock
+3.	Support HDMI 1080P output when play Full HD video clip
+4.	Fixed the issue that sometime the Weather widget will fail to update weather data
+
+<b><#selectbg_g>30/09/2013 - v5.0.4 CROMi-X</#></b>
+o	TF700 Only - Introducing all new Extreme Tweaks from LetMeKnow. Experimental but for you speed freaks! Selected by choosing Hunds OC 3.3.6 kernel
+o	Added _that's v5 OC kernel for non TF700 users. Dependent on your tab whether it can handle this OC or not
+o	Updated Google Services to fix Multi-DPI compatibility
+o	TF300/TF201/ME301 Users - If you choose 160 DPI you now get the original Play Store which brings compatibility back for missing apps
+	(Useful for Candy Crush Saga, etc). Also works on 240 DPI for TF700 Users
+o	Updated Keyboard Manager to fixed version 2.8
+o	Updated YouTube to version 5.1.10
+o	Updated ES File Explorer to version 3.0.5.5
+o	Updated Nova Launcher to version 2.2.3
+o	CROMi-X is now Xposed framework compatible :) Thanks to nemi999 for testing. http://forum.xda-developers.com/showthread.php?t=1574401
+	First run the Xposed app, install the framework and reboot, then select your modules and reboot again
+	You can now use stock xposed modules found here http://forum.xda-developers.com/showthread.php?t=2327541 and also listed in the app
+
+<b><#selectbg_g>17/09/2013 - v5.0.3 CROMi-X</#></b>
+o	Updated Stock Kernel to Asus 10.6.1.27.5 base for all devices
+o	B2R script changed to allow up to 100MB of RAM to be used for caching
+o	Added FlipBoard to B2R script
+o	Fixed the Google and Hulu+ DRM issues with symlinks. Installed by default now. Thanks wrynn7
+o	Updated Adobe Flash Player to version 11.1.115.81
+o	Updated SuperUser app and su binary to version 1.65
+o	Updated Keyboard Manager Launcher to version 2.8
+o	Updated Google Music to version 5.2.1204L
+o	Updated Google Maps to version 7.2.0
+o	Updated Polaris Office to version from Asus 10.6.1.27.5 firmware
+o	Added option to use the default Asus Calendar instead of Google one
+o	Added new inplementation of X-Loud and ClearAudio by noozxoidelabs. It makes the volume LOUD! Thanks Goddly
+o	Added Hunds App verson 2.1 with fixed hundsapp init.d file
+o	Re-added the CROMi-X Stock Asus Boot Animation for those that wanted it
+o	Removed the 1280x800 Lower Res option for TF700 users as it is problematic to undo
+
+<b><#selectbg_g>07/09/2013 - v5.0.2 CROMi-X</#></b>
+o	Hunds TF700 Kernel updated to version 3.3.8 and new data2sd patch applied
+o	Tegra hotplugging interface changed as per hunds echo "8 12 16" > /sys/kernel/rt_config/rt_config
+o	TF700 Only : _that Kernel updated to version 5 which includes GPU OC to 650MHz and CPU OC to 1.8GHz in performance mode.
+	You will have 3 options for Kernel CPU Speeds, all with GPU at 650MHz:
+	1518 - Power Save 1GHz, Balanced 1.5GHz, Performance 1.8GHz
+	1315 - Power Save 1GHz, Balanced 1.3GHz, Performance 1.5GHz
+	1318 - Power Save 1GHz, Balanced 1.3GHz, Performance 1.8GHz
+o	Included _that's recompiled modules for kernel compatibility
+o	Removed TF300TG/L kernel due to issues with wifi. Use _that kernel for now
+o	Updated SuperUser app to version 1.60
+o	Updated Google Keyboard to version 1.1.1881.801980 which fixes the force close messages
+o	Updated Aroma Installer to version 2.70RC2 and cleaned up some minor colour bugs in theme.prop
+o	Reworked data2sd selections in Aroma so it makes a bit more sense now
+
+<b><#selectbg_g>01/09/2013 - v5.0.1 CROMi-X</#></b>
+o	Odexed version released
+o	Fixed the Nova Launcher FC. Thanks Meldrak
+o	Fixed YouTube Cache2SD issue
+o	Fixed ME301T Audio issues - updated audio libraries to v10.6.1.29
+o	Small typo fixed in ET Build.Prop and net.tcp.buffersizes added back in
+o	Updated SuperUser app and binary to version 1.55
+o	Updated Es File Explorer and Theme to version 3.0.5.3
+
+<b><#selectbg_g>29/08/2013 - v5.0 Final Release CROMi-X</#></b>
+o	Extended the New CROMi-X Asus Animation - plus a few small tweaks to speed
+o	Migrated some Extreme Tweak Build.props to the normal ones. ril.disable.fastdormancy=0 and removed ro.HOME_APP_ADJ=1
+o	Reverted the Extreme Tweaks files back to LetMeKnow version which was the fastest and in RC1. Also removed the majority of net tweaks due to WiFi issues
+o	Updated LMT Pie Launcher to version 1.9.12
+o	Updated Apex Launcher to version 2.1.0
+o	Updated Nova Launcher to version 2.2.1
+o	Updated Stock Launcher to 10.6.1.27.1 version. I forgot to update it! Thanks Meldrak
+o	Updated Meldraks Cache2SD to version 1.2 which now includes the ability to move data files to SD (good for large games). Turned off by default. 
+	Use cache2sd -c in terminal to configure that
+o	Updated Hunds TF700 kernel and modules to version 3.3.5 Beta
+o	Added Hunds tweak to under-volt GPU by 25mv to installer options
+o	Added LetMeKnows CPU.sh files for better Hunds performance for TF700 users
+
+<b><#selectbg_g>25/08/2013 - v5.0RC2 CROMi-X</#></b>
+o	Updated CROMI Control to version 1.2.1
+o	Updated SytemUI.apk from elesbb to fix the kill app button on 4.1 GUI. You now swipe up from the bottom bar to kill the current app
+o	Updated Transformer.apk from elesbb to fix the sticky dock notification
+o	Updated Hunds TF700 kernel to version 3.3.4 beta
+o	Removed the data journaling off from tune options for hunds kernels to add some stability and reduce risk of corruption on his kernel
+o	Changed the Extreme Tweaks vm/swapiness to 1. This should make multi tasking smoother
+o	Updated Software Rendering disabled to be a tweak option. Imo unless the GPU is OC'ed it struggles to cope sometimes
+o	Zip Align script is off by default now. This should speed up bootup and also help other scripts execute in time. Thanks Flumpster
+o	Updated cache2sd to version 1.2b. Meldrak has been working on extra options and better initialisation, plus bug fixes for apps that fc'ed
+o	Added a NEW Asus CROMi-X Bios Boot Animation inspired by vnphatbuddha, heavily modded by me
+
+<b><#selectbg_g>23/08/2013 - v5.0RC1 CROMi-X</#></b>
+o	Introducing the first beta release of CROMI CONTROL by elesbb v1.2. This allows you to control notifications, volume steps, USB charging and more!
+o	Updated Hunds TF700 kernel to version 3.3.3 beta
+o	Added option to Over Volt - useful for Overclocking Hunds kernels. Thanks LetMeKnow
+o	Zip Aligned system apks
+o	Updated Google Play Store to JB4.3 - 4.3.11 multi-dpi patched
+o	Updated DropBox to version 2.3.10.4
+o	Updated cache2sd to version 1.2. Now auto installs google and all apps by default. Removed YouTube caching due to fc
+o	Experimental Resolution changer option added - 1920x1200 or 1280x800 for TF700 users. 1280x800 great for gaming
+o	Experimental Extreme Tweaks edition by LetMeKnow (build.prop and init.d tweaks). Feel the speed.
+
+<b><#selectbg_g>21/08/2013 - v5.0b3 CROMi-X</#></b>
+o	Updated Hunds TF700 kernel to version 3.3.2 beta
+o	Updated Hunds TF201 kernel to version 2.0.3 beta
+o	Updated Hunds app to version 1.8
+o	Modded Asus Keyboard to dark grey
+o	Updated YouTube to version 5.0.21
+o	Updated DropBox to version 2.3.10
+o	Experimental Turned off software rendering in /system/lib/hw/egl/egl.cfg. Thanks LetMeKnow
+o	Experimental cache2sd binary added to ROM for testing. Thanks meldrak. See http://forum.xda-developers.com/showthread.php?t=2258050
+
+<b><#selectbg_g>18/08/2013 - v5.0b2 CROMi-X</#></b>
+o	Updated Settings.apk to bring back Launcher Switching for TF700. Modded by elesbb
+o	Updated DSP Manager to later version. Modded by flumpster
+o	Fixed MyLibrary (Asus Reader). It was missing Adobe Fonts. Note it uses a lot of CPU cycles if left open in the background
+o	Removed 180DPI option for non TF700 users as causes FC
+o	Removed WiFI Direct for the non TF700 transformers (It's not going to work)
+o	Modded Hunds TF300 kernel to include TF300TG and TL plus ME301T specific libraries
+o	Updated Hunds TF700 kernel to version 3.3.1 beta
+
+<b><#selectbg_g>17/08/2013 - v5.0b1 CROMi-X</#></b>
+o	Completely rebuilt ROM using Asus 10.6.1.27.1 stock source. Deodexed by me
+o	Rebuilt stock kernel from Asus 10.6.1.27.1 source. Added insecure, other asus device init.rc, adb and also init.d support
+o	Rebuilt TF300TG stock kernel from Asus 10.6.1.28 source. Added insecure, init.d and adb support. Should help wifi reboot issues
+o	Rebuilt ME301T modules and libs from Asus 10.6.1.29 source
+o	Re-Added Advanced Power Menu into Anfroid.Policy.jar. Thanks flumpster for the help
+o	Re-Added Service.jar mods to stop unnecessary Asus Brightness logcat entries
+o	Re-Added Framework.jar mods to disable ScrollingCache for smoother scrolling
+o	Rebuilt and modded Browser.apk with debug preferences available by default
+o	Added Super IPS and GPS back into the Prime version. Thanks flumpster for the help
+o	Rom now disables Smart Dimmer by default. If you must use it (why?) then turn it back on from settings please
+o	Changed vm.vfs_cache_pressure to 50 and /proc/sys/vm/swappiness to 1. This should help the ROM deal with large files
+o	Added WiFI Direct into the non TF700 transformers (option doesn't currently do anything though - needs work)
+o	Updated HOSTS file for ad blocking
+o	Updated Hunds 3.3.0 BETA kernel for the TF700 which fixes reboot to recovery issues
+o	Fixed Hunds kernel installer as modules weren't getting written correctly
+o	Updated Hunds 1.0.2 BETA kernel for the TF201 which fixes reboot to recovery and extFat issues
+o	Updated Hunds app to version 1.7
+o	Updated SuperUser and binary to version 1.51
+o	Updated Google Play Store to JB4.3 - 4.3.10 multi-dpi patched
+o	Updated Google Music to version 5.1.1109K
+o	Updated Google Calendar to JB4.3 version 201306302
+o	Updated Google Mail to version 4.5.2-714156
+o	Updated Google Maps to version 7.1.0
+o	Updated Titanium Backup to version 6.1.0
+o	Updated Keyboard Manager to version 2.7
+o	Updated Apex Launcher to version 2.0.6
+o	Updated Nova Launcher to version 2.2
+o	Updated Asus Web Storage to version 2.0.6.7283
+o	Updated ES File Explorer to version 3.0.5.2
+o	Removed Beats DSP as it caused audio issues
+o	Removed Sony Bravia Engine and Sony XLoud as I don't think they did anything. You can install them individually from XDA
+o	Removed Fsync warning from installer
+o	Updated to new Aroma Installer v2.70RC1 with CROMi-X theme by me
+

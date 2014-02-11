@@ -1,0 +1,22 @@
+#!/bin/sh
+# V1.4.4
+# fix the Day counting bug
+#
+
+trap "" HUP
+
+counter=0
+echo "-16" > /proc/$$/oom_adj
+
+while [ $counter -ne "300" ]; do
+ dateVar="$(/bin/expr $(date +%d) + $(/bin/expr $(/bin/expr $(date +%H) + 8) / 24))"
+ out="$(date +[%Y:%m:$dateVar]) $(/bin/expr $(/bin/expr $(date +%H) + 8) % 24):$(date +%M):$(date +%S)"
+ /system/scripts/monkey/script2log "============================= $counter ============================="
+ echo "$out ============================= $counter =============================" >> /sdcard/log/procrank.log
+ procrank >> /sdcard/log/procrank.log
+
+ counter=`/bin/expr $counter + 1`
+ sleep 300
+done
+
+exit 0

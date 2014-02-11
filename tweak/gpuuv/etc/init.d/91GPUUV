@@ -1,0 +1,4 @@
+#!/system/bin/sh
+### GPU Under Volt!
+echo "1390 1335 1270 1180 1129 1090 1043 996 939 877 830" > /sys/devices/system/cpu/cpu0/cpufreq/gpu_voltage_control
+

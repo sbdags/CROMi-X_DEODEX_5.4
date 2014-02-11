@@ -1,0 +1,3 @@
+#!/system/bin/sh
+#Disable FSync
+echo 0 > /sys/devices/virtual/misc/fsynccontrol/fsync_enabled

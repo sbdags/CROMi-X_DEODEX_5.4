@@ -1,0 +1,8 @@
+debug
+noauth
+connect "/system/bin/chat -v -f /etc/chatscripts/BluetoothCarrier"
+usepeerdns
+/dev/rfcomm0 115200
+defaultroute
+crtscts
+lcp-echo-failure 0

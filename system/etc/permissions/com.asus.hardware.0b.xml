@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<permissions>
+    <!-- Asus epad hardware feature-->
+    <feature name="asus.hardware.fw.camera_isp" />
+    <feature name="asus.hardware.fw.touch" />
+    <feature name="asus.hardware.cpu_mode" />
+    <feature name="asus.hardware.gps" />
+    <feature name="asus.hardware.wifi.direct" />
+    <feature name="asus.hardware.camera" />
+    <feature name="asus.hardware.sensor.compass" />
+    <feature name="asus.hardware.sensor.gyroscope" />
+    <feature name="asus.hardware.sensor.light" />
+    <feature name="asus.hardware.sensor.accelerometer" />
+    <feature name="asus.hardware.sound.maxxaudio" />
+</permissions>

@@ -1,0 +1,4 @@
+#!/system/bin/sh
+
+/system/xbin/cache2sd -m
+

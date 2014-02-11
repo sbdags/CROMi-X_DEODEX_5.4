@@ -1,0 +1,7 @@
+# NOTE: Should always sync with device/nvidia/cardhu/gpio-keys.kl
+
+key 114   VOLUME_DOWN       WAKE_DROPPED
+key 115   VOLUME_UP         WAKE_DROPPED
+key 116   POWER             WAKE
+key 373   MODE_SWITCH       WAKE UNLOCK
+

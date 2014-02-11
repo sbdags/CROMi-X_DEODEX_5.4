@@ -1,0 +1,28 @@
+#!/system/bin/sh
+
+SDK=$(sed -n 's/.*ro.build.version.sdk *= *\([^ ]*.*\)/\1/p' < /system/build.prop)
+if [ $SDK -ge 17 ]; then
+	INTMNT="/data/media/0"
+else
+	INTMNT="/storage/sdcard0"
+fi
+
+echo "Starting SQL Vacuum at $( date +"%m-%d-%Y %H:%M:%S" )" > /data/sqlite.log
+
+if [ ! -e /system/xbin/sqlite3 ]; then
+	echo "This ROM has no sqlite binary" >> /data/sqlite.log
+	exit 0
+fi
+
+for i in `busybox find /data/data -iname "*.db"`; do
+	echo -n "$i -> " >> /data/sqlite.log && sqlite3 -echo $i 'VACUUM;' >> /data/sqlite.log
+	echo -n "$i -> " >> /data/sqlite.log && sqlite3 -echo $i 'REINDEX;' >> /data/sqlite.log
+done
+
+for i in `busybox find $INTMNT -iname "*.db"`; do
+	echo -n "$i -> " >> /data/sqlite.log && sqlite3 -echo $i 'VACUUM;' >> /data/sqlite.log
+	echo -n "$i -> " >> /data/sqlite.log && sqlite3 -echo $i 'REINDEX;' >> /data/sqlite.log
+done
+
+echo "SQL Vacuum finished at $( date +"%m-%d-%Y %H:%M:%S" )" >> /data/sqlite.log
+

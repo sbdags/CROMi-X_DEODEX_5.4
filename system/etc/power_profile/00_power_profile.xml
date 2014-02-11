@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+**
+** Copyright 2009, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License")
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<device name="Android">
+  <!-- All values are in mAh except as noted -->
+  <item name="none">0</item>
+  <item name="screen.on">142.9334</item>
+  <!--not used in HC 3.1-->
+  <item name="bluetooth.active">181.848</item>
+  <item name="bluetooth.on">177.571</item>
+  <item name="screen.full">399.0335</item>
+  <item name="wifi.on">186.484</item>
+  <item name="wifi.active">201.336</item>
+  <!--not used in HC 3.1-->
+  <item name="wifi.scan">186.509</item>
+  <!--not used in HC 3.1-->
+  <item name="dsp.audio">219.598</item>
+  <!--not used in HC 3.1-->
+  <item name="dsp.video">216.586</item>
+  <!--not used in TF101 which don't have phone function -->
+  <item name="radio.active">0</item>
+  <!-- The current consumed by the radio when it is scanning for a signal -->
+  <item name="radio.scanning">555.490</item>
+  <item name="gps.on">286.690</item>
+  <!-- Current consumed by the radio at different signal strengths, when paging -->
+  <array name="radio.on"> <!-- Strength 0 to BINS-1 -->
+      <value>545.105</value>
+      <value>536.974</value>
+      <value>542.106</value>
+      <value>541.098</value>
+      <value>543.319</value>
+  </array>
+  <!-- Different CPU speeds as reported in
+       /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state -->
+  <array name="cpu.speeds">
+      <value>102000</value>
+      <value>204000</value>
+      <value>370000</value>
+      <value>475000</value>
+      <value>620000</value>
+      <value>760000</value>
+      <value>880000</value>
+      <value>1000000</value>
+	  <value>1100000</value>
+	  <value>1200000</value>
+	  <value>1300000</value>
+	  <value>1400000</value>
+  </array>
+  <!-- Power consumption when CPU is idle -->
+  <item name="cpu.idle">6.7</item>
+  <!-- Power consumption at different speeds -->
+  <array name="cpu.active">
+      <value>111.396</value>
+      <value>115.413</value>
+      <value>120.237</value>
+      <value>154.272</value>
+      <value>214.888</value>
+      <value>216.610</value>
+      <value>245.320</value>
+      <value>266.043</value>
+	  <value>278.171</value>
+	  <value>322.899</value>
+	  <value>339.122</value>
+	  <value>312.768</value>
+  </array>
+  <!-- This is the battery capacity in mAh -->
+  <!--not used in HC 3.1-->
+  <item name="battery.capacity">2500</item>
+</device>

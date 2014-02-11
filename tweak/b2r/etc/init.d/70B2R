@@ -1,0 +1,102 @@
+#!/system/bin/sh
+#Browser 2 RAM Tweak modified by sbdags!
+#Created by E. L. Faure (XDA OP @elfaure), 2013 all rights reserved.
+
+# ***************************************************************************************************
+
+# Multi-Browser2RAM startup script.  This script must be run as root!  This script can also run at boot.
+#
+# This is a modified fork of Browser2RAM in sh script form.  Only browser cache is mapped to RAM.
+# Browser data is persistent and is not lost after a reboot.  Functions with 4 browsers: Stock, Naked,
+# Chrome, and Firefox.  Also works with Boat and Dolphin.
+#
+# Created by Emile Faure
+#
+# Copyright (c) 2013, Emile Faure
+# All rights reserved.
+#
+# Acknowlegments/Credits:
+#
+# GitHub:
+#
+#      Copyright (c) 2013, Steve Niemitz
+#      All rights reserved.
+#
+#      Copyright (c) 2012, Julian Beaumont
+#      All rights reserved.
+#
+# Special thanks to XDA Developers:
+#
+#     @_that, @becomingx, @sbdags, @jtrosky, @buhohitr, @Tylorw1
+#
+#
+# ***************************************************************************************************
+#     Notice:  Run this at your own *risk*.  We are *not liable* for any damage it may cause.
+# ***************************************************************************************************
+#
+#
+#Redistribution and use in source and binary forms, with or without 
+#modification, are permitted provided that the following conditions are met:
+
+#1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer. 
+#2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution. 
+
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+#ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#***********************************************************************************************************************************************
+#Further enhancements to your browsing speed can be achieved by typing "about:debug" for stock and "about:flags" for chrome
+#in the address bar and setting the appropriate advanced/experimental settings for your browser's configuration.
+#***********************************************************************************************************************************************
+
+#CODE MAIN
+
+#****************************USERS ADD BROWSER APK NAMES TO THIS LIST BELOW*****************************************************
+
+#Enter your browser apk list below separated with spaces.  Do NOT add firefox to this list.  It is loaded as a special case outside the
+#main block.
+
+LIST="com.android.browser com.fevdev.nakedbrowser com.android.chrome com.opera.browser com.opera.mini.android com.tencent.ibibo.mtt com.mx.browser com.mx.browser.tablet mobi.mgeek.TunnyBrowser com.dolphin.browser com.boatbrowser.free com.boatgo.browser com.baidu.browser.inter com.adrenalinebrowser.browser com.chrome.beta gpc.myweb.hinet.net.PopupWeb com.uc.browser.hd com.ninesky.browser com.jiubang.browser flipboard.app"
+
+for BROWSER in $LIST
+do
+
+  datadir=/data/data/$BROWSER/cache
+  if [ -d $datadir ]; then
+    umount $datadir 2>&-
+    rm -rf $datadir/* 2>&-
+    mount -t tmpfs -o size=100m ${BROWSER}_cache $datadir
+  fi
+done
+
+FIREFOX_CACHE_DIR="$(ls -d /data/data/org.mozilla.firefox/files/mozilla/*.default/Cache 2>/dev/null)"
+if [ ! -z "$FIREFOX_CACHE_DIR" ] && [ "$FIREFOX_CACHE_DIR" != "." ] && [ "$FIREFOX_CACHE_DIR" != "/" ] && [ -d $FIREFOX_CACHE_DIR ];
+then
+  umount $FIREFOX_CACHE_DIR 2>&-
+  rm -rf $FIREFOX_CACHE_DIR/* 2>&-
+  mount -t tmpfs -o size=100m firefox_cache $FIREFOX_CACHE_DIR
+fi
+unset FIREFOX_CACHE_DIR
+
+FIREFOX_BETA_CACHE_DIR="$(ls -d /data/data/org.mozilla.firefox_beta/files/mozilla/*.default/Cache 2>/dev/null)"
+if [ ! -z "$FIREFOX_BETA_CACHE_DIR" ] && [ "$FIREFOX_BETA_CACHE_DIR" != "." ] && [ "$FIREFOX_BETA_CACHE_DIR" != "/" ] && [ -d $FIREFOX_BETA_CACHE_DIR ];
+then
+  umount $FIREFOX_BETA_CACHE_DIR 2>&-
+  rm -rf $FIREFOX_BETA_CACHE_DIR/* 2>&-
+  mount -t tmpfs -o size=100m firefox_beta_cache $FIREFOX_BETA_CACHE_DIR
+fi
+unset FIREFOX_BETA_CACHE_DIR
+unset LIST
+
+#CODE MAIN END

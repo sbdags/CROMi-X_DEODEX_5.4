@@ -1,0 +1,64 @@
+#!/system/bin/sh
+# CleanTWEAKS!
+
+# Optimized remounts
+busybox mount -o remount,noatime,noauto_da_alloc,nodiratime,barrier=0,nobh /system
+busybox mount -o remount,noatime,noauto_da_alloc,nosuid,nodev,nodiratime,barrier=0,nobh /cache
+busybox mount -o remount,noatime,noauto_da_alloc,nosuid,nodev,nodiratime,barrier=0,nobh /data
+
+#CPU and VM Tweaks
+#echo "4096" > /sys/devices/virtual/bdi/179:0/read_ahead_kb
+#echo "4096" > /sys/devices/virtual/bdi/179:48/read_ahead_kb
+echo "0" > /sys/class/graphics/fb0/device/smartdimmer/enable
+echo "85" > /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load
+echo "1800000" > /sys/devices/system/cpu/cpufreq/interactive/max_boost
+echo "760000" > /sys/devices/system/cpu/cpufreq/interactive/midrange_freq
+echo "1300000" > /sys/devices/system/cpu/cpufreq/interactive/max_normal_freq
+echo "65" > /sys/devices/system/cpu/cpufreq/interactive/midrange_go_maxspeed_load
+echo "40000" > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+echo "20000" > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+/system/xbin/sysctl -w fs.file-max=131072
+/system/xbin/sysctl -w fs.inotify.max_queued_events=32768
+/system/xbin/sysctl -w fs.inotify.max_user_instances=256
+/system/xbin/sysctl -w fs.inotify.max_user_watches=10240
+/system/xbin/sysctl -w fs.lease-break-time=10
+/system/xbin/sysctl -w kernel.random.read_wakeup_threshold=128
+/system/xbin/sysctl -w kernel.random.write_wakeup_threshold=256
+/system/xbin/sysctl -w kernel.threads-max=524288
+/system/xbin/sysctl -w vm.dirty_ratio=90
+/system/xbin/sysctl -w vm.dirty_background_ratio=70
+/system/xbin/sysctl -w vm.dirty_expire_centisecs=200
+/system/xbin/sysctl -w vm.dirty_writeback_centisecs=500
+/system/xbin/sysctl -w vm.min_free_kbytes=5572
+/system/xbin/sysctl -w vm.vfs_cache_pressure=10
+/system/xbin/sysctl -w vm.oom_kill_allocating_task=0
+
+#Net Tweaks
+/system/xbin/sysctl -w net.ipv4.tcp_congestion_control=lp
+/system/xbin/sysctl -w net.ipv4.tcp_mem="4000000 4054304 4194304"
+/system/xbin/sysctl -w net.ipv4.udp_mem="4000000 4054304 4194304"
+/system/xbin/sysctl -w net.core.somaxconn=65536
+/system/xbin/sysctl -w net.core.optmem_max=2097152
+/system/xbin/sysctl -w net.core.rmem_max=4194304
+/system/xbin/sysctl -w net.core.rmem_default=131072
+/system/xbin/sysctl -w net.core.wmem_max=2097152
+/system/xbin/sysctl -w net.core.wmem_default=65536
+/system/xbin/sysctl -w net.ipv4.tcp_rmem="8192 131072 4194304"
+/system/xbin/sysctl -w net.ipv4.tcp_wmem="4096 65536 2097152"
+/system/xbin/sysctl -w net.ipv4.udp_rmem_min=8192
+/system/xbin/sysctl -w net.ipv4.udp_wmem_min=4096
+/system/xbin/sysctl -w net.ipv4.tcp_tw_reuse=1
+/system/xbin/sysctl -w net.ipv4.tcp_tw_recycle=1
+/system/xbin/sysctl -w net.ipv4.route.flush=1
+/system/xbin/sysctl -w net.ipv6.route.flush=1
+
+### Hotplug interfaced configuration
+echo "2 4 6" > /sys/kernel/rt_config/rt_config
+
+##I/O Tweaks:
+#Scheduler
+echo "sio" > /sys/block/mmcblk0/queue/scheduler
+echo "sio" > /sys/block/mmcblk1/queue/scheduler
+
+touch /data/local/tmp/init.d_log_test.txt
+echo "done" >> /data/local/tmp/init.d_log_test.txt

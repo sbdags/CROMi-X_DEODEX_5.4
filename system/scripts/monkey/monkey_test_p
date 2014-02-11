@@ -1,0 +1,95 @@
+#!/bin/sh
+# Quinton_Cheng@asus.com #2972 2009/11/18 V1.0
+#Version
+version="3.1.0"
+
+trap "" HUP
+#default value
+epoch=`date +%s`
+seed=$(( epoch % 10000 ))
+#epoch=$(expr $(date +%s) % 10000)
+run=432000
+package_list=package_list.txt
+package=""
+ispackage=""
+category=""
+phonenumber=""
+groupnumber=""
+countdowntimer=""
+
+#Print useage
+#useage() {
+#                echo "useage : monkey_test [--case # <test case #>]"
+#                echo "                     [-p ALLOWED_PACKAGE [-p ALLOWED_PACKAGE] ...]"
+#                echo "                     [-c MAIN_CATEGORY [-c MAIN_CATEGORY] ...]"
+#                echo "                     [-t <seconds>]"
+#                echo "                     [--seed # <seed #>]"
+#                echo "                     [--package-list <test case package list>]"
+#                echo "                     [--phonenumber # <fixed dial #>]"
+#                echo "                     [--IMETest]"
+#                echo "                     [--version]"
+#                echo "                     [-h]"
+#                exit 0
+#}
+
+package="$package $@"
+pm install EmptyActivity.obj
+package="$package -p com.android.emptyactivity"
+
+#setting the argument
+argument=" \
+--pct-anyevent 0 \
+--pct-trackball 0 \
+--pct-flip 0 \
+--ignore-crashes \
+--ignore-timeouts \
+--ignore-security-exceptions \
+--monitor-native-crashes \
+--ignore-native-crashes \
+-v -v -v \
+-s $seed \
+--throttle 1000 \
+$run"
+
+#combine the package info
+argumentPackage="$package $category $argument"
+
+# set the system proptery
+setprop ro.logSystem.disable 1
+setprop debug.monkey true
+base=/system
+export CLASSPATH=$base/framework/monkey.jar
+
+# Clean the log filder
+rm -r /sdcard/log
+#rm -r /data/logs
+
+#chanage the folder access right (Yufeng)
+#chmod 777 /data/misc
+
+#Set the Log Path
+mkdir /sdcard/log
+LogPath="/sdcard/log"
+
+LogcatPath="$LogPath/logcat.log"
+ConsolePath="$LogPath/console.log"
+ConsoleErrPath="$LogPath/console_error.log"
+KmsgPath="$LogPath/kmsg.log"
+ElapsePath="$LogPath/monkey.log"
+
+# Print the information on screen
+echo "The console will generate  console log at        $ConsolePath"
+echo "The console error will generate log at           $ConsoleErrPath"
+echo "The logcat will generate logcat.log at           $LogcatPath"
+echo "The kmsg   will generate kmsg.log at             $KmsgPath"
+echo "The monkey will generate monkey.log at           $ElapsePath"
+echo "monkey $argumentPackage"
+
+logcat -v time > $LogcatPath 2>$LogPath/logcat_main_err.log &
+logcat -b events -v time > $LogPath/events.log 2>$LogPath/logcat_event_err.log &
+logcat -b radio -v time > $LogPath/radio.log 2>$LogPath/logcat_radio_err.log &
+logcat -b system -v time > $LogPath/system.log 2>$LogPath/logcat_system_err.log  &
+
+
+monkey $argumentPackage 1>$ConsolePath 2>$ConsoleErrPath
+#exec app_process $base/bin com.android.commands.monkey.Monkey $argumentPackage 1>$ConsolePath 2>$ConsoleErrPath &

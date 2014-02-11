@@ -1,0 +1,509 @@
+#!/system/bin/sh
+
+# +--------------------------------------------------------------------+
+# | (c) 2013 Meldrak | meldrak[at]orange[dot]fr                        |
+# |                                                                    |
+# | This program is free software; you can redistribute it and/or      |
+# | modify it under the terms of the GNU General Public License        |
+# | as published by the Free Software Foundation; either version       |
+# | 3 of the License, or (at your option) any later version.           |
+# |                                                                    |
+# | This program is distributed in the hope that it will be useful,    |
+# | but WITHOUT ANY WARRANTY; without even the implied warranty        |
+# | of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.            |
+# | See the GNU General Public License for more details.               |
+# |                                                                    |
+# | You should have received a copy of the GNU General Public          |
+# | License along with this program; if not, write to the              |
+# | Free Software Foundation, Inc., 51 Franklin St,                    |
+# | Fifth Floor, Boston, MA  02110-1301  USA                           |
+# +--------------------------------------------------------------------+
+
+EXTMNT="/Removable/MicroSD"
+
+## Check Android version
+SDK=$(sed -n 's/.*ro.build.version.sdk *= *\([^ ]*.*\)/\1/p' < /system/build.prop)
+if [ $SDK -ge 17 ]; then
+	INTMNT="/data/media/0"
+else
+	INTMNT="/storage/sdcard0"
+fi
+
+## Display help
+if [ "$1" = "" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+	echo "Usage: cache2sd  [OPTION]"
+	echo "     -m   mount cache's folders to external SD"
+	echo "     -u   umount all active binds to external SD"
+	echo "     -c   configure which apps will use cache2sd"
+	echo "     -a   show active binds to external SD"
+	echo "     -r   remove all cache's folders from external SD"
+	echo "     -l   show last log and make a copy to internal SD"
+	echo "     -v   show version"
+	exit 0
+fi
+
+## Show version
+if [ "$1" = "-v" ] ; then
+	echo "cache2sd version 1.5 by Meldrak"
+	echo "only to be used on Asus Transformers"
+	exit 0
+fi
+
+## Show last log
+if [ "$1" = "-l" ] ; then
+	cp /data/cache2sd.log /sdcard/cache2sd.log
+	cp /data/optimize.log /sdcard/optimize.log
+	cat "/data/cache2sd.log"
+	exit 0
+fi
+
+## Check ROOT
+if [[ $EUID -ne 0 ]]; then
+	echo -e '\E[47;31m'"\033[1mThis script must be run as ROOT.\033[0m"
+	exit 0
+fi
+
+## Get user currents prefs or get cfg cooked in rom or create default one if 1st time run
+if [ -f "/data/system/cache2sd.cfg" ] ; then
+	NET=$(sed -n 's/.*BROWSER *= *\([^ ]*.*\)/\1/p' < /data/system/cache2sd.cfg)
+	GGL=$(sed -n 's/.*GOOGLE *= *\([^ ]*.*\)/\1/p' < /data/system/cache2sd.cfg)
+	APP=$(sed -n 's/.*ALLAPPS *= *\([^ ]*.*\)/\1/p' < /data/system/cache2sd.cfg)
+	DATA=$(sed -n 's/.*DATA *= *\([^ ]*.*\)/\1/p' < /data/system/cache2sd.cfg)
+	OPMZ=$(sed -n 's/.*OPMZ *= *\([^ ]*.*\)/\1/p' < /data/system/cache2sd.cfg)
+elif [ -f "/system/data/cache2sd.cfg" ] ; then
+	cp /system/data/cache2sd.cfg /data/system/cache2sd.cfg
+	echo "First run of cache2sd, you need to configure it ..." > /data/cache2sd.log
+	echo "or it will use these defaults settings on next reboot :" >> /data/cache2sd.log
+	cat /system/data/cache2sd.cfg >> /data/cache2sd.log
+	echo " " >> /data/cache2sd.log
+	exit 0
+else
+	echo "BROWSER=disable" > /data/system/cache2sd.cfg
+	echo "GOOGLE=disable" >> /data/system/cache2sd.cfg
+	echo "ALLAPPS=disable" >> /data/system/cache2sd.cfg
+	echo "DATA=disable" >> /data/system/cache2sd.cfg
+	echo "OPMZ=disable" >> /data/system/cache2sd.cfg
+	echo "First run of cache2sd, you need to configure it ..." > /data/cache2sd.log
+	echo "or it will use these defaults settings on next reboot :" >> /data/cache2sd.log
+	cat /system/data/cache2sd.cfg >> /data/cache2sd.log
+	echo " " >> /data/cache2sd.log
+	exit 0
+fi
+if [ -z "$OPMZ" ] ; then
+	echo "OPMZ=disable" >> /data/system/cache2sd.cfg
+fi
+
+## Set user prefs
+if [ "$1" = "-c" ] ; then
+	echo " "
+	echo "Cache2sd for Internet (browsers, playstore, downloads) is $NET"
+	echo -n "Activate it Y/N : "
+	read yesno
+	if [ "$yesno" = "y" ] || [ "$yesno" = "Y" ]; then
+    		sed -i 's/^BROWSER.*/BROWSER=enable/' /data/system/cache2sd.cfg
+	elif [ "$yesno" = "n" ] || [ "$yesno" = "N" ]; then
+    		sed -i 's/^BROWSER=.*/BROWSER=disable/' /data/system/cache2sd.cfg
+	else
+   		echo "Bad input!! $yesno not a valid arg!! status still $NET."
+	fi
+	echo " "
+	echo "Cache2sd for Google Apps (maps, gmail, youtube, etc...) is $GGL"
+	echo -n "Activate it Y/N : "
+	read yesno
+	if [ "$yesno" = "y" ] || [ "$yesno" = "Y" ]; then
+    		sed -i 's/^GOOGLE=.*/GOOGLE=enable/' /data/system/cache2sd.cfg
+	elif [ "$yesno" = "n" ] || [ "$yesno" = "N" ]; then
+    		sed -i 's/^GOOGLE=.*/GOOGLE=disable/' /data/system/cache2sd.cfg
+	else
+   		echo "Bad input!! $yesno not a valid arg!! status still $GGL."
+	fi
+	echo " "
+	echo "Cache2sd for All Apps (except system's apps) is $APP"
+	echo -n "Activate it Y/N : "
+	read yesno
+	if [ "$yesno" = "y" ] || [ "$yesno" = "Y" ]; then
+    		sed -i 's/^ALLAPPS=.*/ALLAPPS=enable/' /data/system/cache2sd.cfg
+	elif [ "$yesno" = "n" ] || [ "$yesno" = "N" ]; then
+    		sed -i 's/^ALLAPPS=.*/ALLAPPS=disable/' /data/system/cache2sd.cfg
+	else
+   		echo "Bad input!! $yesno not a valid arg!! status still $APP."
+	fi
+		echo " "
+	echo "Android Data (/sdcard/Android/data/) to extSD is $DATA"
+	echo -n "Activate it Y/N : "
+	read yesno
+	if [ "$yesno" = "y" ] || [ "$yesno" = "Y" ]; then
+    		sed -i 's/^DATA=.*/DATA=enable/' /data/system/cache2sd.cfg
+	elif [ "$yesno" = "n" ] || [ "$yesno" = "N" ]; then
+    		sed -i 's/^DATA=.*/DATA=disable/' /data/system/cache2sd.cfg
+	else
+   		echo "Bad input!! $yesno not a valid arg!! status still $DATA."
+	fi
+	exit 0
+fi
+
+## Show active mount to external SD
+if [ "$1" = "-a" ] ; then
+	MNTLST=$(mount | grep vold/179 | cut -d " " -f2 | sed -e '/MicroSD/d' -e '/sdcard1/d')
+	echo "$MNTLST"
+	exit 0
+fi
+
+## Change MicroSD mount point
+if [ "$1" = "-sd" ] ; then
+	echo " "
+	echo "MicroSD mount point is set to $EXTMNT"
+	echo "If you need you can change it to:"
+	echo "    1.  /Removable/MicroSD (stock rom)"
+	echo "    2.  /storage/sdcard1 (cyanogen rom)"
+	echo -n "Your choice (1 by default) : "
+	read yesno
+	if [ "$yesno" = "1" ] ; then
+    		sed -i 's/^EXTMNT=.*/EXTMNT="\/Removable\/MicroSD"/' /system/xbin/cache2sd
+	elif [ "$yesno" = "2" ] ; then
+    		sed -i 's/^EXTMNT=.*/EXTMNT="\/storage\/sdcard1"/' /system/xbin/cache2sd
+	else
+   		sed -i 's/^EXTMNT=.*/EXTMNT="\/Removable\/MicroSD"/' /system/xbin/cache2sd
+	fi
+	exit 0
+fi
+
+echo "Starting at $( date +"%m-%d-%Y %H:%M:%S" )" > /data/cache2sd.log
+echo "Running Android version $(sed -n 's/.*ro.build.version.release *= *\([^ ]*.*\)/\1/p' < /system/build.prop)" >> /data/cache2sd.log
+
+## Umount alls binds to external SD
+if [ "$1" = "-u" ] ; then
+	echo "..." >> /data/cache2sd.log
+	MNTLST=$(mount | grep vold/179 | cut -d " " -f2 | sed -e '/MicroSD/d' -e '/sdcard1/d' | tr '\n' ' ')
+	for i in $MNTLST; do
+		echo "restoring $i" | tee -a /data/cache2sd.log
+		busybox umount -l $i >> /data/cache2sd.log 2>&1
+	done
+	echo "..." >> /data/cache2sd.log
+	echo "Finished on $DATE" >> /data/cache2sd.log
+	echo "Cache2sd disable"
+	exit 0
+fi
+
+## Wait for MicroSD if not mounted
+COUNTER=0
+while [ $COUNTER -lt 90 ] ; do
+	if [ -d $EXTMNT ] && [ `ls $EXTMNT | wc -l` -ge 1 ]; then
+		DETAIL=$(mount | grep $EXTMNT | cut -d ',' -f1 | sed -e '/data/d')
+		echo "SD found after $COUNTER sec. ($DETAIL)" >> /data/cache2sd.log
+		echo "External SD size is $(df $EXTMNT | tail -n1 | tr -s ' ' | cut -d ' ' -f2) and it remains $(df $EXTMNT | tail -n1 | tr -s ' ' | cut -d ' ' -f4) of free space"  >> /data/cache2sd.log
+		busybox rm -f $EXTMNT/=fscktrim.zip &> /dev/null
+		busybox rm -f $INTMNT/=fscktrim.zip &> /dev/null
+		COUNTER=90
+		ERR="Folder not created on SD."
+	else
+		COUNTER=$((COUNTER+1))
+		ERR="SD not found after 90 sec."
+		sleep 1
+	fi
+done
+
+## Finish optimize scripts and get logs
+if [ "$OPMZ" = "enable" ] ; then
+	sed -i 's/^OPMZ.*/OPMZ=disable/' /data/system/cache2sd.cfg
+	am start -n org.cache2sd.popup/net.dinglisch.android.tasker.Kid
+	LINE1=`grep -n 'TRANSFORMER OPTIMIZER' /cache/recovery/last_log | cut -d ':' -f1 | tail -1`
+	LINE2=`grep -n 'Finished, reboot now' /cache/recovery/last_log | cut -d ':' -f1 | tail -1`
+	tail -n +$LINE1 /cache/recovery/last_log | head -n $((LINE2-LINE1)) > /data/optimize.log
+	sh /system/scripts/zipalign
+	echo "..." >> /data/optimize.log
+	cat /data/zipalign.log >> /data/optimize.log
+	sh /system/scripts/sqlvac
+	echo "..." >> /data/optimize.log
+	cat /data/sqlite.log >> /data/optimize.log
+	echo "--wipe_cache" >> /cache/recovery/command
+	busybox rm -Rf /data/dalvik-cache/* &> /dev/null
+	pm uninstall org.cache2sd.popup
+	busybox umount -a &> /dev/null
+	reboot recovery
+fi
+
+## Optimize system 
+if [ "$1" = "-optimize" ] && [ `ls $EXTMNT | wc -l` -ge 1 ]; then
+	echo -e '\E[47;31m'"\033[1mOptimize could break your system...\033[0m"
+	echo -e '\E[47;31m'"\033[1mBetter to have a backup before continue...\033[0m"
+	echo -n "Are you sure you want to do it? Y/N : "
+	read yesno
+	if [ "$yesno" = "y" ] || [ "$yesno" = "Y" ]; then
+		busybox mount -o rw,remount /system
+    		busybox cp -f /system/scripts/fscktrim $EXTMNT/=fscktrim.zip &> /dev/null
+		busybox cp -f /system/scripts/fscktrim $INTMNT/=fscktrim.zip &> /dev/null
+		echo "--update_package=fscktrim.zip" >> /cache/recovery/command
+		sed -i 's/^OPMZ.*/OPMZ=enable/' /data/system/cache2sd.cfg
+		pm install /system/scripts/popup  &> /dev/null
+		busybox umount -a &> /dev/null
+		reboot recovery
+	elif [ `ls $EXTMNT | wc -l` = "0" ]; then
+		echo "MicroSD is required for this option !!!"
+   		exit 0
+	else
+		exit 0
+	fi
+fi
+
+## Umount and remove all cache from external SD
+if [ "$1" = "-r" ] ; then
+	MNTLST=$(mount | grep vold/179 | cut -d " " -f2 | sed -e '/MicroSD/d' -e '/sdcard1/d' | tr '\n' ' ')
+	SIZE=$(du -hs $EXTMNT/.android/data/ | tail -n1 | tr -s ' ' | cut -d '/' -f1)
+	sed -i 's/^BROWSER=.*/BROWSER=disable/' /data/system/cache2sd.cfg
+	sed -i 's/^GOOGLE=.*/GOOGLE=disable/' /data/system/cache2sd.cfg
+	sed -i 's/^ALLAPPS=.*/ALLAPPS=disable/' /data/system/cache2sd.cfg
+	sed -i 's/^DATA=.*/DATA=disable/' /data/system/cache2sd.cfg
+	for i in $MNTLST; do
+		echo "restoring $i" | tee -a /data/cache2sd.log
+		busybox umount -l $i >> /data/cache2sd.log 2>&1
+	done
+	echo "Cleaning !!! Please wait ...."
+	echo "Cleaning cache folders in $EXTMNT/.android/" >> /data/cache2sd.log
+	busybox rm -Rf $EXTMNT/.android/cache/* &> /dev/null
+	busybox rm -Rf $EXTMNT/.android/cache &> /dev/null
+	echo "Moving back $SIZE Android data to internal" | tee -a /data/cache2sd.log
+	echo "so please wait ... it may be long!!!"
+	busybox mv -f $EXTMNT/.android/data/* $INTMNT/Android/data/ >> /data/cache2sd.log 2>&1
+	busybox rm -Rf $EXTMNT/.android/data/* &> /dev/null
+	busybox rm -Rf $EXTMNT/.android/data &> /dev/null
+	echo "Finished on $DATE" >> /data/cache2sd.log
+	echo "Cache2sd disable and cleaned"
+	exit 0
+fi
+
+## Set apps list for cache2sd
+if [ "$NET" = "enable" ] ; then
+	NETCACHE="com.android.browser com.android.chrome com.opera.browser com.mx.browser.tablet com.dolphin.browser com.boatbrowser.free"
+	FIREFOX=$(ls -d /data/data/org.mozilla.firefox/files/mozilla/*.default/Cache 2>/dev/null)
+else
+	NETCACHE=" "
+	unset FIREFOX
+fi
+if [ "$GGL" = "enable" ] ; then
+	GGLCACHE="com.google.android.apps.books com.google.android.apps.currents com.google.android.apps.maps com.google.android.apps.plus com.google.android.apps.unveil com.google.android.gm com.google.android.googlequicksearchbox com.google.android.keep com.google.android.music com.google.android.videos com.google.earth com.android.vending com.android.providers.downloads"
+else
+	GGLCACHE=" "
+fi
+if [ "$APP" = "enable" ] ; then
+	APPCACHE=$(find /data/data -type d -maxdepth 1 -print0 | cut -d '/' -f4 | sed -e '/com.android./d' -e '/com.asus./d' -e '/com.google./d' -e '/org.mozilla.firefox/d' -e '/com.opera./d' -e '/com.mx.browser./d' -e '/com.dolphin./d' -e '/com.boatbrowser./d' -e '/com.nvidia./d' -e '/com.svox./d' -e '/com.nuance./d' | tr '\n' ' ')
+else
+	APPCACHE=" "
+fi
+
+## Create folders if not exist
+if [ -d $EXTMNT ] && [ ! -d $EXTMNT/.android/cache ] ; then
+	busybox mkdir -p $EXTMNT/.android/cache >> /data/cache2sd.log 2>&1
+	busybox chown -R 1000:1015 $EXTMNT/.android/ &> /dev/null
+	busybox chmod -R 777 $EXTMNT/.android/ >> /data/cache2sd.log 2>&1
+	touch $EXTMNT/.android/.nomedia &> /dev/null
+	touch $EXTMNT/.android/cache/.nomedia &> /dev/null
+fi
+
+## Clean download cache and check CPU stat
+busybox rm -fR $EXTMNT/.android/cache/com.android.providers.downloads/* &> /dev/null
+busybox rm -fR /data/data/com.android.providers.downloads/cache/* &> /dev/null
+
+CPU=$(top -n 1 | grep android.process.media | tr -s ' '| cut -d ' ' -f4 | sed 's/%$//')
+if [ $CPU -ge 30 ]; then
+	echo -e '\E[47;31m'"\033[1mWARNING MediaScan service use more than $CPU% of CPU.\033[0m"
+	echo -e '\E[47;31m'"\033[1mYou should do a SD CheckDisk to check and correct errors.\033[0m"
+	echo "### WARNING MediaScan service use more than $CPU% of CPU." >> /data/cache2sd.log
+	echo "### You should do a SD CheckDisk to check and correct errors." >> /data/cache2sd.log
+fi
+
+## Migrate data from "Android" to ".android" (v1.4+ new folder)
+if [ ! -d $EXTMNT/.android ] && [ -d $EXTMNT/Android ] ; then
+	busybox mv $EXTMNT/Android/ $EXTMNT/.android >> /data/cache2sd.log 2>&1
+fi
+
+## Go only if -m arg and folder exist
+if [ -d $EXTMNT ] && [ -d $EXTMNT/.android/cache ] && [ "$1" = "-m" ] ; then
+	pm disable com.android.providers.media/com.android.providers.media.MediaScannerReceiver &> /dev/null
+	busybox pkill android.process.media &> /dev/null
+	echo "..." >> /data/cache2sd.log
+	## Process All Apps
+	for i in $APPCACHE; do
+		ACTIVE=`mount | grep $i`
+		if [ ! -d $EXTMNT/.android/cache/$i ] && [ -d /data/data/$i/cache ] ; then
+			busybox mkdir $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			touch $EXTMNT/.android/cache/$i/.nomedia &> /dev/null
+			busybox cp -Rfp /data/data/$i/cache/* $EXTMNT/.android/cache/$i/ &> /dev/null
+		fi
+		if [ -d /data/data/$i/cache -a ! -h /data/data/$i/cache ] && [ -z "$ACTIVE" ] ; then
+			MOD=$(stat -c %a /data/data/$i/cache)
+			OWN=$(stat -c %u /data/data/$i/cache)
+			MOD=${MOD:-771}
+			OWN=${OWN:-1015}
+			busybox chown -R $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			busybox chown -R $OWN $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			busybox chmod -R 2$MOD $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			chown $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			echo "Binding $i" | tee -a /data/cache2sd.log
+			busybox mount -o bind $EXTMNT/.android/cache/$i /data/data/$i/cache/ >> /data/cache2sd.log 2>&1
+		elif [ -d /data/data/$i/cache -a -h /data/da0ta/$i/cache ] ; then
+			LNK=`ls -l /data/data/$i/cache | tr -s ' ' | cut -d " " -f8`
+			echo "$i is a symlink to $LNK" >> /data/cache2sd.log
+			echo "If you don't want that, you'll have to remove it by yourself" >> /data/cache2sd.log
+		elif [ ! -z "$ACTIVE" ] ; then
+			echo "$i is already mounted" >> /data/cache2sd.log
+		else
+			echo "$i doesn't exist yet" >> /data/cache2sd.log
+		fi
+	done
+	echo "..." >> /data/cache2sd.log
+	## Process Google Apps
+	for i in $GGLCACHE; do
+		ACTIVE=`mount | grep $i`
+		if [ ! -d $EXTMNT/.android/cache/$i ] && [ -d /data/data/$i/cache ] ; then
+			busybox mkdir $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			touch $EXTMNT/.android/cache/$i/.nomedia &> /dev/null
+			busybox cp -Rpf /data/data/$i/cache/* $EXTMNT/.android/cache/$i/ &> /dev/null
+		fi
+		if [ -d /data/data/$i/cache -a ! -h /data/data/$i/cache ] && [ -z "$ACTIVE" ] ; then
+			MOD=$(stat -c %a /data/data/$i/cache)
+			OWN=$(stat -c %u /data/data/$i/cache)
+			MOD=${MOD:-771}
+			OWN=${OWN:-1015}
+			busybox chown -R $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			busybox chown -R $OWN $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			busybox chmod -R 2$MOD $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			chown $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			echo "Binding $i" | tee -a /data/cache2sd.log
+			busybox mount -o bind $EXTMNT/.android/cache/$i /data/data/$i/cache/ >> /data/cache2sd.log 2>&1
+		elif [ -d /data/data/$i/cache -a -h /data/data/$i/cache ] ; then
+			LNK=`ls -l /data/data/$i/cache | tr -s ' ' | cut -d " " -f8`
+			echo "$i is a symlink to $LNK" >> /data/cache2sd.log
+			echo "If you don't want that, you'll have to remove it by yourself" >> /data/cache2sd.log
+		elif [ ! -z "$ACTIVE" ] ; then
+			echo "$i is already mounted" >> /data/cache2sd.log
+		else
+			echo "$i doesn't exist yet" >> /data/cache2sd.log
+		fi
+	done
+	echo "..." >> /data/cache2sd.log
+	## Process Net Apps
+	for i in $NETCACHE; do
+		ACTIVE=`mount | grep $i`
+		if [ ! -d $EXTMNT/.android/cache/$i ] && [ -d /data/data/$i/cache ] ; then
+			busybox mkdir $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			touch $EXTMNT/.android/cache/$i/.nomedia &> /dev/null
+			busybox cp -Rpf /data/data/$i/cache/* $EXTMNT/.android/cache/$i/ &> /dev/null
+		fi
+		if [ -d /data/data/$i/cache -a ! -h /data/data/$i/cache ] && [ -z "$ACTIVE" ] ; then
+			OWN=$(stat -c %u /data/data/$i/cache)
+			OWN=${OWN:-1015}
+			busybox chown -R $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			busybox chown -R $OWN $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			busybox chmod -R 2777 $EXTMNT/.android/cache/$i >> /data/cache2sd.log 2>&1
+			chown $OWN:$OWN $EXTMNT/.android/cache/$i &> /dev/null
+			echo "Binding $i" | tee -a /data/cache2sd.log
+			busybox mount -o bind $EXTMNT/.android/cache/$i /data/data/$i/cache/ >> /data/cache2sd.log 2>&1
+		elif [ -d /data/data/$i/cache -a -h /data/data/$i/cache ] ; then
+			LNK=`ls -l /data/data/$i/cache | tr -s ' ' | cut -d " " -f8`
+			echo "$i is a symlink to $LNK" >> /data/cache2sd.log
+			echo "If you don't want that, you'll have to remove it by yourself" >> /data/cache2sd.log
+		elif [ ! -z "$ACTIVE" ] ; then
+			echo "$i is already mounted" >> /data/cache2sd.log
+		else
+			echo "$i doesn't exist yet" >> /data/cache2sd.log
+		fi
+	done
+	## Process Firefox
+	if [ ! -z "$FIREFOX" ] && [ "$FIREFOX" != "." ] && [ "$FIREFOX" != "/" ] && [ -d $FIREFOX ] && [ "$1" = "-m" ] ; then
+		ACTIVE=`mount | grep $FIREFOX`
+		if [ ! -d $EXTMNT/.android/cache/org.mozilla.firefox ] && [ -d $FIREFOX ] ; then
+			busybox mkdir $EXTMNT/.android/cache/org.mozilla.firefox >> /data/cache2sd.log 2>&1
+			touch $EXTMNT/.android/cache/org.mozilla.firefox/.nomedia &> /dev/null
+			busybox cp -Rpf $FIREFOX* $EXTMNT/.android/cache/org.mozilla.firefox/ &> /dev/null
+		fi
+		if [ -d $FIREFOX -a ! -h $FIREFOX ] && [ -z "$ACTIVE" ] ; then
+			MOD=$(stat -c %a $FIREFOX)
+			OWN=$(stat -c %u $FIREFOX)
+			MOD=${MOD:-771}
+			OWN=${OWN:-1015}
+			busybox chown -R $OWN:$OWN $EXTMNT/.android/cache/org.mozilla.firefox &> /dev/null
+			busybox chown -R $OWN $EXTMNT/.android/cache/org.mozilla.firefox >> /data/cache2sd.log 2>&1
+			busybox chmod -R 2$MOD $EXTMNT/.android/cache/org.mozilla.firefox >> /data/cache2sd.log 2>&1
+			chown $OWN:$OWN $EXTMNT/.android/cache/org.mozilla.firefox &> /dev/null
+			echo "Binding org.mozilla.firefox" | tee -a /data/cache2sd.log
+			busybox mount -o bind $EXTMNT/.android/cache/org.mozilla.firefox $FIREFOX >> /data/cache2sd.log 2>&1
+		elif [ -d $FIREFOX -a -h $FIREFOX ] ; then
+			LNK=`ls -l $FIREFOX | tr -s ' ' | cut -d " " -f8`
+			echo "org.mozilla.firefox is a symlink to $LNK" >> /data/cache2sd.log
+			echo "If you don't want that, you'll have to remove it by yourself" >> /data/cache2sd.log
+		elif [ ! -z "$ACTIVE" ] ; then
+			echo "org.mozilla.firefox is already mounted" >> /data/cache2sd.log
+		else
+			echo "org.mozilla.firefox doesn't exist yet" >> /data/cache2sd.log
+		fi
+	fi
+	echo "..." >> /data/cache2sd.log
+
+	## Process Android data
+	ACTIVE=`mount | grep Android/data`
+	if [ "$DATA" = "enable" ] ; then
+		SIZE=$(du -hs $INTMNT/Android/data/ | tail -n1 | tr -s ' ' | cut -d '/' -f1) 
+		if [ ! -d $EXTMNT/.android/data ] && [ -d $INTMNT/Android/data ] && [ -z "$ACTIVE" ] ; then
+			echo "Moving $SIZE Android data to external SD" | tee -a /data/cache2sd.log
+			echo "so please wait ... it may be long!!!"
+			busybox mkdir $EXTMNT/.android/data >> /data/cache2sd.log 2>&1
+			touch $EXTMNT/.android/data/.nomedia &> /dev/null
+			busybox mv -f $INTMNT/Android/data/* $EXTMNT/.android/data/ &> /dev/null
+			busybox rm -Rf $INTMNT/Android/data/* &> /dev/null
+		elif [ -d $EXTMNT/.android/data ] && [  `ls $INTMNT/Android/data | wc -l` -ge 1 ] && [ -z "$ACTIVE" ] ; then
+			echo "Moving $SIZE Android data to external SD" | tee -a /data/cache2sd.log
+			echo "so please wait ... it may be long!!!"
+			busybox mv -f $INTMNT/Android/data/* $EXTMNT/.android/data/ &> /dev/null
+			busybox rm -Rf $INTMNT/Android/data/* &> /dev/null
+		fi
+		if [ -d $INTMNT/Android/data -a ! -h $INTMNT/Android/data ] && [ -z "$ACTIVE" ] ; then
+			OWN=$(stat -c %u $INTMNT/Android/data)
+			OWN=${OWN:-1023}
+			busybox chown -R $OWN:$OWN $EXTMNT/.android/data &> /dev/null
+			busybox chown -R $OWN $EXTMNT/.android/data >> /data/cache2sd.log 2>&1
+			busybox chmod -R 2777 $EXTMNT/.android/data >> /data/cache2sd.log 2>&1
+			chown $OWN:$OWN $EXTMNT/.android/data &> /dev/null
+			echo "Binding Android/data" | tee -a /data/cache2sd.log
+			busybox mount -o bind $EXTMNT/.android/data $INTMNT/Android/data/ >> /data/cache2sd.log 2>&1
+		elif [ -d $INTMNT/Android/data -a -h $INTMNT/Android/data ] ; then
+			LNK=`ls -l $INTMNT/Android/data | tr -s ' ' | cut -d " " -f8`
+			echo "$INTMNT/Android/data is a symlink to $LNK" >> /data/cache2sd.log
+			echo "If you don't want that, you'll have to remove it by yourself" >> /data/cache2sd.log
+		elif [ ! -z "$ACTIVE" ] ; then
+			echo "Android/data is already mounted" >> /data/cache2sd.log
+		else
+			echo "Android/data doesn't exist but should !!!" >> /data/cache2sd.log
+		fi
+	else
+		if [ ! -z "$ACTIVE" ] ; then
+			busybox umount -l $INTMNT/Android/data >> /data/cache2sd.log 2>&1
+		fi
+		if [ -d $INTMNT/Android/data ] && [ `ls $EXTMNT/.android/data | wc -l` -ge 1 ] ; then
+			SIZE=$(du -hs $EXTMNT/.android/data/ | tail -n1 | tr -s ' ' | cut -d '/' -f1)
+			echo "Copying back $SIZE Android data to internal" | tee -a /data/cache2sd.log
+			echo "Data will remains on SD until you manually remove it" | tee -a /data/cache2sd.log
+			echo "so please wait ... it may be long!!!"
+			busybox cp -Rpf $EXTMNT/.android/data/* $INTMNT/Android/data/ &> /dev/null
+		fi
+	fi
+	
+	echo "..." >> /data/cache2sd.log
+	MNTLST=$(mount | grep vold/179 | cut -d " " -f2 | sed -e '/MicroSD/d' -e '/sdcard1/d')
+	if [ -z "$MNTLST" -a "$NET" = "enable" ] || [ -z "$MNTLST" -a "$NET" = "enable" ] || [ -z "$MNTLST" -a "$GGL" = "enable" ] || [ -z "$MNTLST" -a "$APP" = "enable" ] ; then
+		echo "Cache2sd is not enable but should !!! SD may not have been umounted safely" | tee -a /data/cache2sd.log
+		echo "You should do a SD CheckDisk to check and correct errors." | tee -a /data/cache2sd.log
+	fi
+	pm enable com.android.providers.media/com.android.providers.media.MediaScannerReceiver &> /dev/null
+	echo "Finished at $( date +"%m-%d-%Y %H:%M:%S" )" >> /data/cache2sd.log
+	echo "Cache2sd enable"
+elif [ "$1" != "-m" ] ; then
+	echo "Bad argument, script canceled" >> /data/cache2sd.log
+	echo "Bad argument, type 'cache2sd -h' for help"
+else
+	echo "..." >> /data/cache2sd.log
+	echo $ERR >> /data/cache2sd.log
+	echo "cache2sd has been disabled" >> /data/cache2sd.log
+	echo "Cache2sd disable"
+fi
+

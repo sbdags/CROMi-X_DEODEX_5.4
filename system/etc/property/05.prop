@@ -1,0 +1,2 @@
+rild.libpath=/system/lib/libqcom-ril.so
+rild.libargs=-d /dev/ttyUSB2

@@ -1,0 +1,5 @@
+#!/system/bin/sh
+insmod /system/lib/modules/blocklayoutdriver.ko
+insmod /system/lib/modules/rndis_host.ko
+insmod /system/lib/modules/rndis_wlan.ko
+

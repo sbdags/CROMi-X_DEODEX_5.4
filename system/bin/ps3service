@@ -1,0 +1,46 @@
+#!/system/bin/sh
+
+# Start PS3 pairing
+
+# Check Bluetooth Status
+
+LOG_NAME="BlueZ - PS3 Game-pad"
+LOG_TAG="ps3service"
+
+logi ()
+{
+    /system/bin/log -t $LOG_TAG -p i "$LOG_NAME $@"
+}
+
+/system/xbin/ps3bttest is_enabled > /dev/null
+
+btstatus=$?
+
+logi "getBtStatus(): btstatus = $btstatus"
+
+case $btstatus in
+    1)
+        logi "BT is enabled"
+        /system/bin/sixpair
+        sleep 2
+        #Re-start the bluetooth service after pairing
+        service call bluetooth 5; > /dev/null
+        btresult=0
+        while [ $btresult != 1 ];
+        do
+            sleep 1;
+            /system/xbin/ps3bttest is_enabled > /dev/null
+            btresult=$?
+            logi "getBtStatus(): btresult = $btresult"
+            if [ "$btresult" = "0" ];then
+                logi "Bluetooth turn off success"
+                sleep 1;
+                service call bluetooth 3; > /dev/null
+            fi
+        done
+    ;;
+    *)
+        logi "BT function is disabled, we do not enable bluetooth PS3 Game-pad"
+    ;;
+esac
+

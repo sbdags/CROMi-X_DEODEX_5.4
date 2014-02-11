@@ -1,0 +1,12 @@
+ABOUT DISABLING FSYNC, ENABLING OVER/UNDER VOLTING AND CACHE2SD:
+
+Use these at your own risk! I will not be responsible for any bootlooping tablets or loss of data!
+
+Only turn on these options if you have a working CWM/TWRP Nandroid backup and can restore that backup from recovery.
+
+Disabling fsync removes the need for SQLite to check that data has been written to disk successfully. It also means that the operating system can freely re-order writes before they are comitted to flash memory. 
+In the event of an Android freeze or hard lock resultng in a reboot, it *could* lead to database corruption which may result in data loss.
+
+Enabling Cache2SD can cause issues if your card is not fast enough or it becomes corrupted. It is an experimental devlopment so use with caution.
+
+Thank You. Apply them at your own risk.

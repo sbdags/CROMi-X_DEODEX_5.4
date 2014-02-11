@@ -1,0 +1,5 @@
+1 com.android.calendar                   calendar
+2 com.android.contacts                   contacts&phone
+3 com.android.mms                        mms
+4 com.android.settings                   settings
+6 com.android.stk                        stk

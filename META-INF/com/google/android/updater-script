@@ -1,0 +1,1027 @@
+# CROMI Installer
+set_progress(0.00);
+ui_print("Thank you for installing CROMi-Xenogenesis JB 4.2.1!");
+ui_print("Sit back and relax...");
+ui_print("-----------------------------------------------------");
+ui_print("This will take a few minutes!");
+
+show_progress(0.99, 1550);
+ui_print("Preparing File System...");
+package_extract_dir("prep", "/tmp");
+set_perm_recursive(0, 0, 0755, 0755, "/tmp");
+
+#-- ROM2SD --#
+if
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3" ||
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "4"
+then
+	ui_print("Installing ROM2SD compatibilty....");
+	mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
+	package_extract_dir("kernel/rom2sd/system", "/system");
+	set_perm(0, 0, 0744, "/system/boot/preinit");
+endif;
+
+if
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	ui_print("Formatting System for Rom2SD...");
+	format("ext4", "EMMC", "/dev/block/mmcblk1p3", "0");
+else
+	ui_print("Formatting System....");
+	format("ext4", "EMMC", "/dev/block/mmcblk0p1", "0");
+endif;
+
+ui_print("Unmounting System, Cache and Data...");
+run_program("/sbin/busybox", "umount", "/dev/block/mmcblk0p2");
+
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "2" ||
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	run_program("/sbin/busybox", "umount", "/dev/block/mmcblk1p2");
+else
+	run_program("/sbin/busybox", "umount", "/dev/block/mmcblk0p8");
+endif;
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	run_program("/sbin/busybox", "umount", "/dev/block/mmcblk1p3");
+else
+	run_program("/sbin/busybox", "umount", "/dev/block/mmcblk0p1");
+endif;
+
+if
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	ui_print("Tuning System for Rom2SD....");
+	#run_program("/tmp/mkfs.ext4", "-O", "^ext_attr,^has_journal,^huge_file", "-L", "SYSTEM", "-b", "4096", "-m", "0", "-F", "/dev/block/mmcblk1p3");
+	#run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-c", "5", "-i", "5d", "-m", "0", "-o", "+journal_data_writeback", "/dev/block/mmcblk1p3");
+	run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-o", "+journal_data_writeback", "/dev/block/mmcblk1p3");
+	mount("ext4", "EMMC", "/dev/block/mmcblk1p3", "/system");
+else
+	ui_print("Tuning System....");
+	#run_program("/tmp/mkfs.ext4", "-O", "^ext_attr,^has_journal,^huge_file", "-L", "SYSTEM", "-b", "4096", "-m", "0", "-F", "/dev/block/mmcblk0p1");
+	#run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-c", "5", "-i", "5d", "-m", "0", "-o", "+journal_data_writeback", "/dev/block/mmcblk0p1");
+	run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-o", "+journal_data_writeback", "/dev/block/mmcblk0p1");
+	mount("ext4", "EMMC", "/dev/block/mmcblk0p1", "/system");
+endif;
+	#ui_print("Tuning Cache....");
+	#run_program("/tmp/tune2fs.ext4", "-O", "^has_journal", "/dev/block/mmcblk0p2");
+	mount("ext4", "EMMC", "/dev/block/mmcblk0p2", "/cache");
+if
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "2" ||
+	file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "3"
+then
+	ui_print("Tuning Data SD-EXT....");
+	#run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-c", "5", "-i", "5d", "-m", "0", "-o", "+journal_data_writeback", "/dev/block/mmcblk1p2");
+	run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-o", "+journal_data_writeback", "/dev/block/mmcblk1p2");
+	mount("ext4", "EMMC", "/dev/block/mmcblk1p2", "/data");
+else
+	ui_print("Tuning Data....");
+	#run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-c", "5", "-i", "5d", "-m", "0", "-o", "+journal_data_writeback", "/dev/block/mmcblk0p8");
+	run_program("/tmp/tune2fs.ext4", "-O", "+has_journal", "-o", "+journal_data_writeback", "/dev/block/mmcblk0p8");
+	mount("ext4", "EMMC", "/dev/block/mmcblk0p8", "/data");
+endif;
+
+if
+    file_getprop("/tmp/aroma-data/wipe.prop","selected") == "1"
+then
+    ui_print("Wiping Dalvik Cache.....");
+	delete_recursive("/data/dalvik-cache");
+endif;
+ui_print("Wiping Cache.....");
+delete_recursive("/cache");
+
+#Install System
+ui_print("Installing Core System...");
+package_extract_dir("system", "/system");
+
+ui_print("Installing Options...");
+#-- Edition --#
+ui_print("Model Specific Files");
+#TF700 Build
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+	package_extract_dir("kernel/tf700/system", "/system");
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
+	then
+		if
+			file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "1"
+		then
+			ui_print(" - TF700 WW ET Build");
+			package_extract_dir("edition/etww", "/system");
+		endif;
+		if
+			file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "2"
+		then
+			ui_print(" - TF700 US ET Build");
+			package_extract_dir("edition/etus", "/system");
+		endif;
+	else
+		if
+			file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "1"
+		then
+			ui_print(" - TF700 WW Build");
+			package_extract_dir("edition/700ww", "/system");
+		endif;
+		if
+			file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "2"
+		then
+			ui_print(" - TF700 US Build");
+			package_extract_dir("edition/700us", "/system");
+		endif;
+	endif;
+endif;
+
+#TF201 Build
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "2"
+then
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "1"
+	then
+		ui_print(" - TF201 WW Build");
+		package_extract_dir("edition/201ww", "/system");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "2"
+	then
+		ui_print(" - TF201 US Build");
+		package_extract_dir("edition/201us", "/system");
+	endif;
+endif;
+
+#TF300 Build
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "3" ||
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "4"
+then
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "1"
+	then
+		ui_print(" - TF300 WW Build");
+		package_extract_dir("edition/300ww", "/system");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "2"
+	then
+		ui_print(" - TF300 US Build");
+		package_extract_dir("edition/300us", "/system");
+	endif;
+endif;
+
+#TF300TG Modules
+if
+	file_getprop("/tmp/aroma-data/device.prop","selected") == "4"
+then
+	package_extract_dir("kernel/tf300tg/system", "/system");
+	set_perm(0, 2000, 0755, "/system/bin/ntfs-3g");
+	set_perm(0, 2000, 0755, "/system/bin/exfat");
+endif;
+
+#ME301T Build
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "5"
+then
+	package_extract_dir("kernel/me301t/system", "/system");
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "1"
+	then
+		ui_print(" - ME301T WW Build");
+		package_extract_dir("edition/301ww", "/system");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/edition.prop","selected.0") == "2"
+	then
+		ui_print(" - ME301T US Build");
+		package_extract_dir("edition/301us", "/system");
+	endif;
+endif;
+
+#-- Kernel --#
+ui_print("Kernel Preparation");
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1"
+	then
+		ui_print(" - _that v4 10.6.1.14.8 Stock Modded Kernel");
+		package_extract_dir("kernel/that/system", "/system");
+		package_extract_file("that4sb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
+	then
+		ui_print(" - _that v7 10.6.1.14.10 Stock Modded OC Kernel");
+		package_extract_dir("kernel/thatoc/system", "/system");
+		if
+			file_getprop("/tmp/aroma-data/speed.prop","selected.1") == "1"
+		then
+			ui_print(" - Power Save 1GHz, Balanced 1.5GHz, Performance 1.8GHz");
+			package_extract_dir("kernel/thatoc/system1518", "/system");
+		endif;
+		if
+			file_getprop("/tmp/aroma-data/speed.prop","selected.1") == "2"
+		then
+			ui_print(" - Power Save 1GHz, Balanced 1.3GHz, Performance 1.5GHz");
+			package_extract_dir("kernel/thatoc/system1315", "/system");
+		endif;
+		if
+			file_getprop("/tmp/aroma-data/speed.prop","selected.1") == "3"
+		then
+			ui_print(" - Power Save 1GHz, Balanced 1.3GHz, Performance 1.8GHz");
+			package_extract_dir("kernel/thatoc/system1318", "/system");
+		endif;
+		package_extract_file("that7sb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3"
+	then
+		ui_print(" - TF700 Hunds OC Kernel");
+		package_extract_dir("kernel/hunds/tf700/system", "/system");
+		package_extract_dir("kernel/hunds/system", "/system");
+		package_extract_file("hunds744.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
+	then
+		ui_print(" - TF700 Hunds OC Kernel");
+		package_extract_dir("kernel/hunds/system", "/system");
+		ui_print(" - Extreme Tweaks");
+		package_extract_dir("kernel/hunds/tf700/system/lib", "/system/lib");
+		package_extract_dir("kernel/lmkhunds/system", "/system");
+		package_extract_file("lmkhund4.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "5"
+	then
+		ui_print(" - sbdags 10.6.1.27.5 Stock Stable Kernel");
+		package_extract_file("stocksb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "6"
+	then
+		ui_print(" - No Kernel to Flash");
+	endif;
+else
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "1"
+	then
+		ui_print(" - _that v4 10.6.1.14.8 Stock Modded Kernel");
+		package_extract_dir("kernel/that/system", "/system");
+		package_extract_file("that4sb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
+	then
+		ui_print(" - _that v7 10.6.1.14.10 Stock Modded OC Kernel");
+		package_extract_dir("kernel/thatoc/system", "/system");
+		package_extract_dir("kernel/thatoc/system1518", "/system");
+		package_extract_file("that7sb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3"
+	then
+		ui_print(" - Hunds OC Kernel");
+		package_extract_dir("kernel/hunds/system", "/system");
+		if
+			file_getprop("/tmp/aroma-data/device.prop","selected") == "2"
+		then
+			package_extract_file("hunds203.blob", "/dev/block/mmcblk0p4");
+			package_extract_dir("kernel/hunds/tf201/system", "/system");
+		endif;
+		if
+			file_getprop("/tmp/aroma-data/device.prop","selected") == "3" ||
+			file_getprop("/tmp/aroma-data/device.prop","selected") == "4" ||
+			file_getprop("/tmp/aroma-data/device.prop","selected") == "5"
+		then
+			package_extract_file("hunds311sb.blob", "/dev/block/mmcblk0p4");
+			package_extract_dir("kernel/hunds/tf300/system", "/system");
+		endif;
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"
+	then
+		ui_print(" - sbdags 10.6.1.27.5 Stock Stable Kernel");
+		package_extract_file("stocksb.blob", "/dev/block/mmcblk0p4");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "5"
+	then
+		ui_print(" - No Kernel to Flash");
+	endif;
+endif;
+
+#-- DPI --#
+ui_print("DPI Preparation");
+#TF700 DPI
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "1"
+then
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "1"
+	then
+		ui_print(" - 240 DPI");
+		package_extract_dir("dpi/240", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "2"
+	then
+		ui_print(" - 224 DPI");
+		package_extract_dir("dpi/224", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "3"
+	then
+		ui_print(" - 213 DPI");
+		package_extract_dir("dpi/213", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "4"
+	then
+		ui_print(" - 200 DPI");
+		package_extract_dir("dpi/200", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "5"
+	then
+		ui_print(" - 180 DPI");
+		package_extract_dir("dpi/180", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "6"
+	then
+		ui_print(" - 160 DPI");
+		package_extract_dir("dpi/160", "/tmp");
+	endif;
+endif;
+
+#TF300/TF201/ME301T/1280x800Res DPI
+if
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "2" ||
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "3" ||
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "4" ||
+  file_getprop("/tmp/aroma-data/device.prop","selected") == "5"
+then
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "1"
+	then
+		ui_print(" - 160 DPI");
+		package_extract_dir("dpi/160", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "2"
+	then
+		ui_print(" - 148 DPI");
+		package_extract_dir("dpi/148", "/tmp");
+	endif;
+	if
+		file_getprop("/tmp/aroma-data/dpi.prop","selected.0") == "3"
+	then
+		ui_print(" - 136 DPI");
+		package_extract_dir("dpi/136", "/tmp");
+	endif;
+	package_extract_dir("google/ps", "/system");
+endif;
+set_perm_recursive(0, 0, 0755, 0755, "/tmp");
+
+#-- Boot Animations --#
+ui_print("Boot Animations");
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "1"
+then
+	ui_print(" - Asus Bios");
+    package_extract_dir("boot/bios2", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "2"
+then
+	ui_print(" - CROMi-X Fire & Water");
+    package_extract_dir("boot/cromixfaw", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "3"
+then
+	ui_print(" - CROMi-X Blue Fire");
+    package_extract_dir("boot/cromixbf", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "4"
+then
+	ui_print(" - CROMi-X Yellow");
+    package_extract_dir("boot/cromi", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "5"
+then
+	ui_print(" - CROMi-X Asus Stock");
+    package_extract_dir("boot/stock", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/boot.prop","selected.0") == "6"
+then
+	ui_print(" - Google Nexus");
+    package_extract_dir("boot/nexus", "/system");
+endif;
+
+#-- Launchers --#
+ui_print("Launcher");
+if
+    file_getprop("/tmp/aroma-data/launcher.prop","item.0.1") == "1"
+then
+	ui_print(" - miniCROMi-X Launcher");
+    package_extract_dir("launchers/stocklite", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/launcher.prop","item.0.2") == "1"
+then
+	ui_print(" - Asus Stock Launcher");
+    package_extract_dir("launchers/stock", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/launcher.prop","item.0.3") == "1"
+then
+	ui_print(" - Apex Launcher");
+    package_extract_dir("launchers/apex", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/launcher.prop","item.0.4") == "1"
+then
+	ui_print(" - Nova Launcher");
+    package_extract_dir("launchers/nova", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/launcher.prop","item.0.5") == "1"
+then
+	ui_print(" - ADW Launcher");
+    package_extract_dir("launchers/adw", "/system");
+endif;
+
+#-- Keyboards --#
+ui_print("");
+ui_print("Keyboards");
+if
+    file_getprop("/tmp/aroma-data/keyboard.prop","item.0.1") == "1"
+then
+	ui_print(" - Asus Keyboard");
+    package_extract_dir("keyboard/asus", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/keyboard.prop","item.0.2") == "1"
+then
+	ui_print(" - Google Keyboard");
+	package_extract_dir("keyboard/google/system", "/system");
+endif;
+
+#-- Asus Apps --#
+ui_print("");
+ui_print("Asus Apps");
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.1") == "1"
+then
+	ui_print(" - Asus Email & Exchange");
+    package_extract_dir("asus/email", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.2") == "1"
+then
+	ui_print(" - Asus File Manager");
+    package_extract_dir("asus/stockfm", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.3") == "1"
+then
+	ui_print(" - Asus MyFrame");
+    package_extract_dir("asus/myframe", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.4") == "1"
+then
+	ui_print(" - Asus Desk Clock and Widget");
+    package_extract_dir("asus/adeskclock", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.5") == "1"
+then
+	ui_print(" - Asus Weather Widget");
+    package_extract_dir("asus/weather", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.6") == "1"
+then
+	ui_print(" - Asus Battery Widget");
+    package_extract_dir("asus/battery", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.7") == "1"
+then
+	ui_print(" - Asus SuperNote");
+    package_extract_dir("asus/supernote", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.8") == "1"
+then
+	ui_print(" - Asus Calendar");
+    package_extract_dir("asus/calendar", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.9") == "1"
+then
+	ui_print(" - Asus App Back Up");
+    package_extract_dir("asus/appback", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.10") == "1"
+then
+	ui_print(" - Asus App Locker");
+    package_extract_dir("asus/applock", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.11") == "1"
+then
+	ui_print(" - Asus MyCloud & Splashtop");
+    package_extract_dir("asus/mycloud", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.12") == "1"
+then
+	ui_print(" - Asus MyNet");
+    package_extract_dir("asus/mynet", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.13") == "1"
+then
+	ui_print(" - Asus Video Editor Movie Studio");
+    package_extract_dir("asus/videoeditor", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.14") == "1"
+then
+	ui_print(" - Asus Web Storage");
+    package_extract_dir("asus/webstorage", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.15") == "1"
+then
+	ui_print(" - Asus MyDictionary");
+    package_extract_dir("asus/mydictionary", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.16") == "1"
+then
+	ui_print(" - Asus MyLibrary Reader");
+    package_extract_dir("asus/mylibrary", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.17") == "1"
+then
+	ui_print(" - Asus Screensaver");
+    package_extract_dir("asus/screensaver", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.18") == "1"
+then
+	ui_print(" - Asus Live Wallpapers");
+    package_extract_dir("asus/livewall", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.19") == "1"
+then
+	ui_print(" - Asus Taskmanager");
+    package_extract_dir("asus/taskmanager", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/asus.prop","item.0.20") == "1"
+then
+	ui_print(" - Asus Parental Control");
+    package_extract_dir("asus/parentlock", "/system");
+endif;
+
+#-- Google Apps --#
+ui_print("");
+ui_print("Google Apps");
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.1") == "1"
+then
+	ui_print(" - Google Now and Voice Search");
+    package_extract_dir("google/search", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.2") == "1"
+then
+	ui_print(" - Google Music");
+    package_extract_dir("google/music2", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.3") == "1"
+then
+	ui_print(" - News and Weather Genie");
+    package_extract_dir("google/genie", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.4") == "1"
+then
+	ui_print(" - YouTube");
+    package_extract_dir("google/yt", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.5") == "1"
+then
+	ui_print(" - Maps");
+    package_extract_dir("google/maps", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.6") == "1"
+then
+	ui_print(" - Street View for Maps");
+    package_extract_dir("google/street", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.7") == "1"
+then
+	ui_print(" - Gmail");
+    package_extract_dir("google/gmail", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.8") == "1"
+then
+	ui_print(" - Talk");
+    package_extract_dir("google/talk", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.9") == "1"
+then
+	ui_print(" - Google Live Wallpapers");
+    package_extract_dir("google/livewall", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.10") == "1"
+then
+	ui_print(" - Picasa");
+    package_extract_dir("google/picasa", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.11") == "1"
+then
+	ui_print(" - FaceLock");
+    package_extract_dir("google/facelock", "/system");
+	set_perm_recursive(0, 2000, 0755, 0644, "/system/vendor/pittpatt");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/multi_pose_face_landmark_detectors.7/left_eye-y0-yi45-p0-pi45-r0-ri20.lg_32/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/multi_pose_face_landmark_detectors.7/nose_base-y0-yi45-p0-pi45-r0-ri20.lg_32/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/multi_pose_face_landmark_detectors.7/right_eye-y0-yi45-p0-pi45-r0-ri20.lg_32-2/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/yaw_roll_face_detectors.6/head-y0-yi45-p0-pi45-r0-ri30.4a-v24/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/yaw_roll_face_detectors.6/head-y0-yi45-p0-pi45-rn30-ri30.5-v24/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/detection/yaw_roll_face_detectors.6/head-y0-yi45-p0-pi45-rp30-ri30.5-v24/full_model.bin");
+	set_perm(0, 0, 0644, "/system/vendor/pittpatt/models/recognition/face.face.y0-y0-22-b-N/full_model.bin");
+endif;
+if
+    file_getprop("/tmp/aroma-data/google.prop","item.0.12") == "1"
+then
+	ui_print(" - Google Desk Clock and Widget");
+    package_extract_dir("google/gdeskclock", "/system");
+endif;
+
+#-- Misc Apps --#
+ui_print("");
+ui_print("Misc Apps");
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.1.1") == "1"
+then
+	ui_print(" - Adobe Flash");
+	delete("/data/app/com.adobe.flashplayer-2.apk");
+    package_extract_dir("misc/flash", "/data");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.1.2") == "1"
+then
+	ui_print(" - ES File Explorer");
+    package_extract_dir("misc/es", "/system");
+endif;
+
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.1.3") == "1"
+then
+	ui_print(" - Keyboard Manager");
+    package_extract_dir("misc/km", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.1.4") == "1"
+then
+	ui_print(" - Polaris Office");
+    package_extract_dir("misc/polaris", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.2.1") == "1"
+then
+	ui_print(" - Titanium Backup");
+	delete("/data/app/com.keramidas.TitaniumBackup-2.apk");
+	delete("/data/app/com.keramidas.TitaniumBackup-3.apk");
+    package_extract_dir("misc/tibu", "/data");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.2.2") == "1"
+then
+	ui_print(" - DropBox");
+	delete("/data/app/com.dropbox.android-2.apk");
+    package_extract_dir("misc/dropbox", "/data");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.2.3") == "1"
+then
+	ui_print(" - Terminal Emulator");
+	delete("/data/app/jackpal.androidterm-2.apk");
+    package_extract_dir("misc/terminal", "/data");
+endif;
+if
+    file_getprop("/tmp/aroma-data/misc.prop","item.2.4") == "1"
+then
+	ui_print(" - LMT");
+	delete("/data/app/com.android.lmt-2.apk");
+    package_extract_dir("misc/lmt", "/data");
+endif;
+
+#-- DRM and Sound Options --#
+ui_print("");
+ui_print("DRM and Sound Options");
+ui_print(" - Google Video & Hulu+ DRM");
+package_extract_dir("drm/lib.org", "/system/vendor/lib.org");
+set_perm(0, 2000, 0755, "/system/vendor/lib.org");
+set_perm_recursive(0, 2000, 0755, 0644, "/system/vendor/lib.org/drm");
+set_perm(0, 0, 0644, "/system/vendor/lib.org/drm/libdrmwvmplugin.so");
+
+if
+    file_getprop("/tmp/aroma-data/sound.prop","selected.1") == "1"
+then
+	ui_print(" - MusicFX");
+endif;
+if
+    file_getprop("/tmp/aroma-data/sound.prop","selected.1") == "2"
+then
+	ui_print(" - DSP Manager");
+    package_extract_dir("misc/dsp3", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma-data/sound.prop","selected.1") == "3"
+then
+	ui_print(" - X-Loud Audio Manager");
+    package_extract_dir("misc/xloud/system", "/system");
+	package_extract_file("misc/xloud/add_to_buildprop.sh", "/tmp/add_to_buildprop.sh");
+	set_perm(0, 0, 0777, "/tmp/add_to_buildprop.sh");
+	run_program("/sbin/sh", "/tmp/add_to_buildprop.sh");
+endif;
+
+#-- Tweaks --#
+ui_print("");
+ui_print("Tweaks and Scripts");
+
+if
+	file_getprop("/tmp/aroma/tweak.prop","item.1.1") == "1"
+then
+	ui_print(" - Browser2RAM enabled");
+    package_extract_dir("tweak/b2r", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.1.2") == "1"
+then
+	ui_print(" - SD & Dock Notifications Hidden");
+    package_extract_dir("tweak/nosd", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.1.3") == "1"
+then
+	ui_print(" - Ad Blocker enabled");
+    package_extract_dir("tweak/adblock", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.1.4") == "1"
+then
+	ui_print(" - Zip Align Script installed");
+    package_extract_dir("tweak/zipalign", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.1.5") == "1"
+then
+	ui_print(" - Keyboard Dock Remapping installed");
+    package_extract_dir("tweak/dock", "/system");
+endif;
+
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.2.1") == "1"
+then
+	ui_print(" - AdAway installed");
+    package_extract_dir("tweak/adaway", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.2.2") == "1"
+then
+	ui_print(" - Xposed App installed");
+    package_extract_dir("tweak/xposed/system", "/system");
+	delete("/data/app/com.ceco.gm2.gravitybox-1.apk");
+	delete("/data/app/com.ceco.gm2.gravitybox-2.apk");
+	package_extract_dir("tweak/xposed/data", "/data");
+	package_extract_dir("tweak/xposed/sdcard", "/sdcard");
+endif;
+
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.1") == "1"
+then
+	ui_print(" - fsync disabled");
+    package_extract_dir("tweak/fsync", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.2") == "1"
+then
+	ui_print(" - Sotfware Rendering disabled");
+    package_extract_dir("tweak/gpu", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.3") == "1"
+then
+	ui_print(" - CPU Under-Volted");
+    package_extract_dir("tweak/uv", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.4") == "1"
+then
+	ui_print(" - CPU Over-Volted");
+    package_extract_dir("tweak/ov", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.5") == "1"
+then
+	ui_print(" - GPU Under-Volted");
+    package_extract_dir("tweak/gpuuv", "/system");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.6") == "1"
+then
+    ui_print(" - Cache2SD enabled");
+    package_extract_dir("tweak/cache2sd/system", "/system");
+    set_perm(1000, 1000, 0660, "/system/data/cache2sd.cfg");
+	delete("/data/system/cache2sd.cfg")
+endif;
+
+#Build Sym Links#
+ui_print("");
+ui_print("Building symlinks.....");
+symlink("Roboto-Bold.ttf", "/system/fonts/DroidSans-Bold.ttf");
+symlink("Roboto-Regular.ttf", "/system/fonts/DroidSans.ttf");
+symlink("busybox", "/system/xbin/[", "/system/xbin/[[",
+        "/system/xbin/adjtimex", "/system/xbin/arp", "/system/xbin/ash",
+        "/system/xbin/awk", "/system/xbin/base64", "/system/xbin/basename",
+        "/system/xbin/bbconfig", "/system/xbin/blkid", "/system/xbin/blockdev",
+        "/system/xbin/brctl", "/system/xbin/bunzip2", "/system/xbin/bzcat",
+        "/system/xbin/bzip2", "/system/xbin/cal", "/system/xbin/cat",
+        "/system/xbin/catv", "/system/xbin/chattr", "/system/xbin/chgrp",
+        "/system/xbin/chmod", "/system/xbin/chown", "/system/xbin/chroot",
+        "/system/xbin/clear", "/system/xbin/cmp", "/system/xbin/comm",
+        "/system/xbin/cp", "/system/xbin/cpio", "/system/xbin/crond",
+        "/system/xbin/crontab", "/system/xbin/cut", "/system/xbin/date",
+        "/system/xbin/dc", "/system/xbin/dd", "/system/xbin/depmod",
+        "/system/xbin/devmem", "/system/xbin/df", "/system/xbin/diff",
+        "/system/xbin/dirname", "/system/xbin/dmesg", "/system/xbin/dnsd",
+        "/system/xbin/dos2unix", "/system/xbin/du", "/system/xbin/echo",
+        "/system/xbin/ed", "/system/xbin/egrep", "/system/xbin/env",
+        "/system/xbin/expand", "/system/xbin/expr", "/system/xbin/false",
+        "/system/xbin/fdisk", "/system/xbin/fgrep", "/system/xbin/find",
+        "/system/xbin/flash_lock", "/system/xbin/flash_unlock",
+        "/system/xbin/flashcp", "/system/xbin/flock", "/system/xbin/fold",
+        "/system/xbin/free", "/system/xbin/freeramdisk", "/system/xbin/fsync",
+        "/system/xbin/ftpget", "/system/xbin/ftpput", "/system/xbin/fuser",
+        "/system/xbin/getopt", "/system/xbin/grep", "/system/xbin/groups",
+        "/system/xbin/gunzip", "/system/xbin/gzip", "/system/xbin/halt",
+        "/system/xbin/head", "/system/xbin/hexdump", "/system/xbin/id",
+        "/system/xbin/ifconfig", "/system/xbin/insmod", "/system/xbin/install",
+        "/system/xbin/iostat", "/system/xbin/ip", "/system/xbin/kill",
+        "/system/xbin/killall", "/system/xbin/killall5", "/system/xbin/length",
+        "/system/xbin/less", "/system/xbin/ln", "/system/xbin/losetup",
+        "/system/xbin/ls", "/system/xbin/lsattr", "/system/xbin/lsmod",
+        "/system/xbin/lsusb", "/system/xbin/lzcat", "/system/xbin/lzma",
+        "/system/xbin/lzop", "/system/xbin/lzopcat", "/system/xbin/man",
+        "/system/xbin/md5sum", "/system/xbin/mesg", "/system/xbin/mkdir",
+        "/system/xbin/mke2fs", "/system/xbin/mkfifo", "/system/xbin/mkfs.ext2",
+        "/system/xbin/mkfs.vfat", "/system/xbin/mknod", "/system/xbin/mkswap",
+        "/system/xbin/mktemp", "/system/xbin/modinfo", "/system/xbin/modprobe",
+        "/system/xbin/more", "/system/xbin/mount", "/system/xbin/mountpoint",
+        "/system/xbin/mpstat", "/system/xbin/mv", "/system/xbin/nanddump",
+        "/system/xbin/nandwrite", "/system/xbin/netstat", "/system/xbin/nice",
+        "/system/xbin/nohup", "/system/xbin/nslookup", "/system/xbin/ntpd",
+        "/system/xbin/od", "/system/xbin/patch", "/system/xbin/pgrep",
+        "/system/xbin/pidof", "/system/xbin/ping", "/system/xbin/pkill",
+        "/system/xbin/pmap", "/system/xbin/poweroff", "/system/xbin/printenv",
+        "/system/xbin/printf", "/system/xbin/ps", "/system/xbin/pstree",
+        "/system/xbin/pwd", "/system/xbin/pwdx", "/system/xbin/rdev",
+        "/system/xbin/readlink", "/system/xbin/realpath", "/system/xbin/renice",
+        "/system/xbin/reset", "/system/xbin/resize", "/system/xbin/rev",
+        "/system/xbin/rm", "/system/xbin/rmdir", "/system/xbin/rmmod",
+        "/system/xbin/route", "/system/xbin/run-parts", "/system/xbin/rx",
+        "/system/xbin/sed", "/system/xbin/seq", "/system/xbin/setconsole",
+        "/system/xbin/setserial", "/system/xbin/setsid", "/system/xbin/sh",
+        "/system/xbin/sha1sum", "/system/xbin/sha256sum",
+        "/system/xbin/sha512sum", "/system/xbin/sleep", "/system/xbin/sort",
+        "/system/xbin/split", "/system/xbin/stat", "/system/xbin/strings",
+        "/system/xbin/stty", "/system/xbin/sum", "/system/xbin/swapoff",
+        "/system/xbin/swapon", "/system/xbin/sync", "/system/xbin/sysctl",
+        "/system/xbin/tac", "/system/xbin/tail", "/system/xbin/tar",
+        "/system/xbin/taskset", "/system/xbin/tee", "/system/xbin/telnet",
+        "/system/xbin/telnetd", "/system/xbin/test", "/system/xbin/tftp",
+        "/system/xbin/tftpd", "/system/xbin/time", "/system/xbin/timeout",
+        "/system/xbin/top", "/system/xbin/touch", "/system/xbin/tr",
+        "/system/xbin/traceroute", "/system/xbin/true", "/system/xbin/ttysize",
+        "/system/xbin/tune2fs", "/system/xbin/umount", "/system/xbin/uname",
+        "/system/xbin/uncompress", "/system/xbin/unexpand", "/system/xbin/uniq",
+        "/system/xbin/unix2dos", "/system/xbin/unlzma", "/system/xbin/unlzop",
+        "/system/xbin/unxz", "/system/xbin/unzip", "/system/xbin/uptime",
+        "/system/xbin/usleep", "/system/xbin/uudecode", "/system/xbin/uuencode",
+        "/system/xbin/vi", "/system/xbin/watch", "/system/xbin/wc",
+        "/system/xbin/wget", "/system/xbin/which", "/system/xbin/whoami",
+        "/system/xbin/xargs", "/system/xbin/xz", "/system/xbin/xzcat",
+        "/system/xbin/yes",
+        "/system/xbin/zcat");
+symlink("mksh", "/system/bin/sh");
+symlink("toolbox", "/system/bin/cat", "/system/bin/chmod",
+        "/system/bin/chown", "/system/bin/cmp", "/system/bin/date",
+        "/system/bin/dd", "/system/bin/df", "/system/bin/dmesg",
+        "/system/bin/getevent", "/system/bin/getprop", "/system/bin/hd",
+        "/system/bin/id", "/system/bin/ifconfig", "/system/bin/iftop",
+        "/system/bin/insmod", "/system/bin/ioctl", "/system/bin/ionice",
+        "/system/bin/kill", "/system/bin/ln", "/system/bin/log",
+        "/system/bin/ls", "/system/bin/lsmod", "/system/bin/lsof",
+        "/system/bin/mkdir", "/system/bin/mount", "/system/bin/mv",
+        "/system/bin/nandread", "/system/bin/netstat",
+        "/system/bin/newfs_msdos", "/system/bin/notify", "/system/bin/printenv",
+        "/system/bin/ps", "/system/bin/r", "/system/bin/reboot",
+        "/system/bin/renice", "/system/bin/rm", "/system/bin/rmdir",
+        "/system/bin/rmmod", "/system/bin/route", "/system/bin/schedtop",
+        "/system/bin/sendevent", "/system/bin/setconsole",
+        "/system/bin/setprop", "/system/bin/sleep", "/system/bin/smd",
+        "/system/bin/start", "/system/bin/stop", "/system/bin/sync",
+        "/system/bin/top", "/system/bin/touch", "/system/bin/umount",
+        "/system/bin/uptime", "/system/bin/vmstat", "/system/bin/watchprops",
+        "/system/bin/wipe");
+
+#Set Permissions#
+ui_print("");
+ui_print("Setting permissions.....");
+set_perm_recursive(0, 0, 0755, 0644, "/system");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/etc/init.d");
+set_perm(0, 0, 0755, "/system/etc/init.d");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm(0, 3003, 02750, "/system/bin/netcfg");
+set_perm(0, 3004, 02755, "/system/bin/ping");
+set_perm(0, 2000, 06750, "/system/bin/run-as");
+set_perm(1002, 1002, 0440, "/system/etc/dbus.conf");
+set_perm(1014, 2000, 0550, "/system/etc/dhcpcd/dhcpcd-run-hooks");
+set_perm(0, 2000, 0550, "/system/etc/init.goldfish.sh");
+set_perm_recursive(0, 0, 0755, 0555, "/system/etc/ppp");
+set_perm(0, 2000, 0755, "/system/vendor");
+set_perm(0, 2000, 0755, "/system/vendor/firmware");
+set_perm(0, 2000, 0755, "/system/vendor/firmware/bcm4324");
+set_perm(0, 2000, 0755, "/system/vendor/firmware/bcm4329");
+set_perm(0, 2000, 0755, "/system/vendor/firmware/bcm4330");
+set_perm(0, 2000, 0755, "/system/vendor/firmware/bcm4334");
+set_perm(0, 2000, 0755, "/system/vendor/lib");
+set_perm(0, 2000, 0755, "/system/vendor/lib/drm");
+set_perm(0, 0, 0644, "/system/vendor/lib/libbt-vendor.so");
+set_perm_recursive(0, 2000, 0755, 0644, "/system/vendor/lib/hw");
+set_perm(0, 0, 0644, "/system/vendor/lib/hw/power.cardhu.so");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
+set_perm(0, 0, 0777, "/system/xbin/busybox");
+symlink("/system/xbin/busybox", "/system/bin/busybox");
+#run_program("/system/xbin/busybox", "--install", "-s", "/system/xbin");
+set_perm(0, 0, 06755, "/system/xbin/su");
+symlink("/system/xbin/su", "/system/bin/su");
+#DRM Fix
+symlink("/system/vendor/lib.org/libwvdrm_L3.so", "/system/vendor/lib/libwvdrm_L3.so");
+symlink("/system/vendor/lib.org/libwvm.so", "/system/vendor/lib/libwvm.so");
+symlink("/system/vendor/lib.org/libWVStreamControlAPI_L3.so", "/system/vendor/lib/libWVStreamControlAPI_L3.so");
+symlink("/system/vendor/lib.org/drm/libdrmwvmplugin.so", "/system/vendor/lib/drm/libdrmwvmplugin.so");
+delete("/system/vendor/lib/drm/placeholder");
+
+#-- Data2SD Preinit Script --#
+
+if
+  file_getprop("/tmp/aroma-data/kernel.prop","selected.2") == "2"
+then
+	ui_print("Data2SD pre-init script installed");
+	package_extract_dir("kernel/data2sd/system", "/system");
+	set_perm(0, 0, 0744, "/system/boot/preinit");
+endif;
+
+#-- DPI --#
+ui_print("Installing build.prop");
+run_program ("/sbin/sh", "/tmp/upd-build-prop.sh");
+
+ui_print("Finalising ROM");
+set_progress(0.99);
+unmount("/data");
+unmount("/system");
+set_progress(1.0);
+ui_print("---------------------------------------");
+ui_print("All Done!");
+ui_print("Dont forget to follow @sbdags on Twitter");
+ui_print("If you like it please donate to sbdags@gmail.com on paypal");
+ui_print("Enjoy CROMi-X!");
