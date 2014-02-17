@@ -25,7 +25,7 @@ ini_set("rom_name",              "CROMi-Xenogenesis");
 ini_set("rom_version",           "5.4 DEODEX");
 ini_set("rom_author",            "sbdags");
 ini_set("rom_device",            "Asus Transformer TF700T/TF300T(GL)/TF201/ME301T");
-ini_set("rom_date",              "01/02/2014");
+ini_set("rom_date",              "20/02/2014");
 
 splash(
    3000,
@@ -145,16 +145,16 @@ else
     
     "TF201, TF300, TF300TG/L, ME301T Kernels", "", 2,
     "_that stock 10.6.1.14.8 Modded Kernel v4","Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",1,
-	"_that OC 10.6.1.14.10 Modded Kernel v7","OC, Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",0,
+	"_that OC 10.6.1.14.10 Modded Kernel v8","OC, F2FS, Row Scheduler, UV, CIFS, ISO9660 and Fsync Control. By _that",0,
     "Hunds OC 10.6.1.8 Modded Kernel","With App by Hundsbuah (Not compatible with TF300TG/L)",0,
     "ASUS 10.6.1.27.5 Stock Kernel","By sbdags (Not Data2SD/Rom2SD Compatible)",0,
     "Do Not Flash a Kernel","",0,
 
-    "Data2SD/Rom2SD - Must have EXT4 partitions on SDCard", "", 2,
+    "Data2SD/Rom2SD - Must have EXT4 partitions on Micro-SD", "", 2,
     "Install normal CROMi-X","Install /data & /system internally as normal",1,
-    "Install Data2SD","Install /data to microSD",0,
-    "Install Rom2SD","Install /data & /system to microSD - allow dual booting ROMs",0,
-    "Install Rom2SD compatibility mode","Install /data & /system to internal - allow recognition of ROM on microSD",0
+    "Install Data2SD","Install /data to Micro-SD EXT4 partition",0,
+    "Install Rom2SD","Install /data & /system to Micro-SD EXT4 partitions - allow dual booting ROMs",0,
+    "Install Rom2SD compatibility mode","Install /data & /system to internal - allow recognition of different ROM on Micro-SD",0
 
 );
 endif;
@@ -368,7 +368,7 @@ checkbox(
  
 	"Apps","","2",
 	"AdAway App","This installs an app for you to control Ads yourself","1",
-	"Xposed Framework","Allows you to apply many tweaks found in Xposed Modules",0,
+	"Xposed Framework + Gravity Box","Allows you to apply many tweaks found in Xposed Modules",0,
  
 	"Hard Core Tweaks - Install with caution - experimental!","","2",
 	"IO Tweak: Disable fsync","Speeds up IO read/writes to internal SD but can cause data corruption","0",

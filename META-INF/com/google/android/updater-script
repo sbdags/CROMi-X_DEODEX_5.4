@@ -215,7 +215,7 @@ then
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
 	then
-		ui_print(" - _that v7 10.6.1.14.10 Stock Modded OC Kernel");
+		ui_print(" - _that v8 10.6.1.14.10 Stock Modded OC Kernel");
 		package_extract_dir("kernel/thatoc/system", "/system");
 		if
 			file_getprop("/tmp/aroma-data/speed.prop","selected.1") == "1"
@@ -235,7 +235,7 @@ then
 			ui_print(" - Power Save 1GHz, Balanced 1.3GHz, Performance 1.8GHz");
 			package_extract_dir("kernel/thatoc/system1318", "/system");
 		endif;
-		package_extract_file("that7sb.blob", "/dev/block/mmcblk0p4");
+		package_extract_file("that8sb.blob", "/dev/block/mmcblk0p4");
 	endif;
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3"
@@ -1017,7 +1017,7 @@ run_program ("/sbin/sh", "/tmp/upd-build-prop.sh");
 
 ui_print("Finalising ROM");
 set_progress(0.99);
-unmount("/data");
+#unmount("/data");
 unmount("/system");
 set_progress(1.0);
 ui_print("---------------------------------------");
