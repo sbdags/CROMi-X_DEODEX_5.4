@@ -7,6 +7,7 @@ o	Rebuilt Stock Launcher Lite version -  3 Screens ONLY, New Beach Wallpaper, 4.
 o	Fixed framework-res.apk wallpaper inconsistencies. Tree definitely gone now and beach wallpaper formatted correctly
 o	Updated _that's OC kernel to version 8
 o	Updated Hunds' kernel to version 3.4.5
+o	Updated LetMeKnow's ET to Hunds' 3.4.5 kernel
 o	Updated Google Core Services and libs to latest version
 o	Updated Titanium Backup to version 6.1.5.3
 o	Updated Google Maps to version 7.6.1

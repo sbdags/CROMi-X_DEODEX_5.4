@@ -253,7 +253,7 @@ then
 		ui_print(" - Extreme Tweaks");
 		package_extract_dir("kernel/hunds/tf700/system/lib", "/system/lib");
 		package_extract_dir("kernel/lmkhunds/system", "/system");
-		package_extract_file("lmkhund4.blob", "/dev/block/mmcblk0p4");
+		package_extract_file("lmkhund5.blob", "/dev/block/mmcblk0p4");
 	endif;
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "5"
@@ -277,10 +277,10 @@ else
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "2"
 	then
-		ui_print(" - _that v7 10.6.1.14.10 Stock Modded OC Kernel");
+		ui_print(" - _that v8 10.6.1.14.10 Stock Modded OC Kernel");
 		package_extract_dir("kernel/thatoc/system", "/system");
 		package_extract_dir("kernel/thatoc/system1518", "/system");
-		package_extract_file("that7sb.blob", "/dev/block/mmcblk0p4");
+		package_extract_file("that8sb.blob", "/dev/block/mmcblk0p4");
 	endif;
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "3"
