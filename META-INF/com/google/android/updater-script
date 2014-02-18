@@ -243,7 +243,7 @@ then
 		ui_print(" - TF700 Hunds OC Kernel");
 		package_extract_dir("kernel/hunds/tf700/system", "/system");
 		package_extract_dir("kernel/hunds/system", "/system");
-		package_extract_file("hunds744.blob", "/dev/block/mmcblk0p4");
+		package_extract_file("hunds745.blob", "/dev/block/mmcblk0p4");
 	endif;
 	if
 		file_getprop("/tmp/aroma-data/kernel.prop","selected.1") == "4"

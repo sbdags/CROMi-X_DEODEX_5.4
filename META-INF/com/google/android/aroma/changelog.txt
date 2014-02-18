@@ -1,11 +1,18 @@
 <b><#selectbg_g>CROMi-X Changelog:</#></b>
-<b><#selectbg_g>01/02/2014 - v5.4 CROMi-X</#></b>
+<b><#selectbg_g>20/02/2014 - v5.4 CROMi-X</#></b>
 o	Removed CROMi-Control app. After discussions with elesbb he will redevelop as an xposed module
 o	Reverted Framework (framework.jar, services.jar, systemui.apk, transformer.apk) to pre-cromi-control versions
 o	Modded systemui.apk and transformer.apk to allow sd card and dock notifications to be removed as an option in installer
 o	Rebuilt Stock Launcher Lite version -  3 Screens ONLY, New Beach Wallpaper, 4.2 Gui gets 9x6 workspace and draw icons, removed google bar and page indicator
 o	Fixed framework-res.apk wallpaper inconsistencies. Tree definitely gone now and beach wallpaper formatted correctly
-o	Updated Superuser and binary to latest version 1.91
+o	Updated _that's OC kernel to version 8
+o	Updated Hunds' kernel to version 3.4.5
+o	Updated Google Core Services and libs to latest version
+o	Updated Titanium Backup to version 6.1.5.3
+o	Updated Google Maps to version 7.6.1
+o	Updated Google Music to version 5.4.1409N
+o	Updated Google Now to version 3.2.17
+o	Updated Superuser and binary to latest version 1.93
 o	Fixed issue of ET installation locked into 213 DPI
 o	Fixed search options missing - Reinstated QuickSearch from Asus
 o	Minor build.prop fix to remove duplicate entry
