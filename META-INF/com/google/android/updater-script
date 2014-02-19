@@ -432,14 +432,14 @@ ui_print("Launcher");
 if
     file_getprop("/tmp/aroma-data/launcher.prop","item.0.1") == "1"
 then
-	ui_print(" - miniCROMi-X Launcher");
-    package_extract_dir("launchers/stocklite", "/system");
+	ui_print(" - Asus Stock Launcher");
+    package_extract_dir("launchers/stock", "/system");
 endif;
 if
     file_getprop("/tmp/aroma-data/launcher.prop","item.0.2") == "1"
 then
-	ui_print(" - Asus Stock Launcher");
-    package_extract_dir("launchers/stock", "/system");
+	ui_print(" - miniCROMi-X Launcher");
+    package_extract_dir("launchers/stocklite", "/system");
 endif;
 if
     file_getprop("/tmp/aroma-data/launcher.prop","item.0.3") == "1"

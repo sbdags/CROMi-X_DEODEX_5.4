@@ -255,8 +255,8 @@ checkbox(
   "Choose as many as you want!",
   "@customize",
   "launcher.prop",
-  "miniCROMi-X Stock Launcher","Lite Version of Asus Stock",1,
-  "Asus Stock Launcher","",0,
+  "Asus Stock Launcher","",1,
+  "miniCROMi-X Stock Launcher","Lite Version of Asus Stock",0,
   "Apex Launcher","",0,
   "Nova Launcher","",0,
   "ADW Launcher","",0
