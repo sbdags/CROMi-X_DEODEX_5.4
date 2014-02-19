@@ -829,9 +829,9 @@ if
     file_getprop("/tmp/aroma/tweak.prop","item.3.1") == "1"
 then
 	ui_print(" - Switch CPU Modes");
-    run_program("/system/xbin/busybox", "cp", "/system/etc/cpu2.sh", "/tmp/cpu2.sh");
-	run_program("/system/xbin/busybox", "cp", "/system/etc/cpu3.sh", "/system/etc/cpu2.sh");
-	run_program("/system/xbin/busybox", "cp", "/tmp/cpu2.sh", "/system/etc/cpu3.sh");
+	package_extract_dir("tweak/cpu", "/tmp");
+	set_perm_recursive(0, 0, 0755, 0755, "/tmp");
+    run_program ("/sbin/sh", "/tmp/switch-cpu.sh");
 endif;
 if
     file_getprop("/tmp/aroma/tweak.prop","item.3.2") == "1"

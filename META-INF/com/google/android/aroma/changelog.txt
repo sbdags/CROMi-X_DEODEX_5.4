@@ -5,7 +5,7 @@ o	Reverted Framework (framework.jar, services.jar, systemui.apk, transformer.apk
 o	Modded systemui.apk and transformer.apk to allow sd card and dock notifications to be removed as an option in installer
 o	Rebuilt Stock Launcher Lite version -  3 Screens ONLY, New Beach Wallpaper, 4.2 Gui gets 9x6 workspace and draw icons, removed google bar and page indicator
 o	Fixed framework-res.apk wallpaper inconsistencies. Tree definitely gone now and beach wallpaper formatted correctly
-o	Added installer option to switch balanced and performance profiles around. So if you choose balanced you actually get performance which means it also boots to performance
+o	Added installer option to switch balanced and performance profiles. If you choose balanced you actually get performance. Device boots to performance
 o	Changed entropy settings to stop kernel rebuilding entropy_avail - result should be less lag
 o	Updated _that's OC kernel to version 8
 o	Updated Hunds' kernel to version 3.4.5

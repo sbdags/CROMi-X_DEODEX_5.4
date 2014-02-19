@@ -375,7 +375,7 @@ checkbox(
 	"IO Tweak: Disable fsync","Speeds up IO read/writes to internal SD but can cause data corruption","0",
 	"GPU Rendering : Disable Software Rendering","Forces rendering to be done by GPU rather than CPU","0",
 	"CPU UV : Under-Volt CPU by 50mV","Better battery life but can cause instability especially if over-clocking","0",
-	"CPU OV : Over-Volt CPU by 50mV","Only works Hunds kernels and overclocking","0",
+	"CPU OV : Over-Volt CPU by 50mV","Only works with Hunds kernels and overclocking","0",
 	"GPU UV : Under-Volt GPU by 25mV","Only works with Hunds kernels","0",
 	"Cache2SD","Speeds up installed apps by caching to MicroSD rather than to internal SD - NEEDS A FAST SD CARD","0"
 
