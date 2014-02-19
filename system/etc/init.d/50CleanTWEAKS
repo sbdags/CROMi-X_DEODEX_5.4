@@ -22,8 +22,8 @@ echo "20000" > /sys/devices/system/cpu/cpufreq/interactive/timer_rate
 /system/xbin/sysctl -w fs.inotify.max_user_instances=256
 /system/xbin/sysctl -w fs.inotify.max_user_watches=10240
 /system/xbin/sysctl -w fs.lease-break-time=10
-/system/xbin/sysctl -w kernel.random.read_wakeup_threshold=128
-/system/xbin/sysctl -w kernel.random.write_wakeup_threshold=256
+/system/xbin/sysctl -w kernel.random.read_wakeup_threshold=1024
+/system/xbin/sysctl -w kernel.random.write_wakeup_threshold=2048
 /system/xbin/sysctl -w kernel.threads-max=524288
 /system/xbin/sysctl -w vm.dirty_ratio=90
 /system/xbin/sysctl -w vm.dirty_background_ratio=70

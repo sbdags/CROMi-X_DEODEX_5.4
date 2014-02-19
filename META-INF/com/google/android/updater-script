@@ -828,35 +828,43 @@ endif;
 if
     file_getprop("/tmp/aroma/tweak.prop","item.3.1") == "1"
 then
+	ui_print(" - Switch CPU Modes");
+    run_program("/system/xbin/busybox", "cp", "/system/etc/cpu2.sh", "/tmp/cpu2.sh");
+	run_program("/system/xbin/busybox", "cp", "/system/etc/cpu3.sh", "/system/etc/cpu2.sh");
+	run_program("/system/xbin/busybox", "cp", "/tmp/cpu2.sh", "/system/etc/cpu3.sh");
+endif;
+if
+    file_getprop("/tmp/aroma/tweak.prop","item.3.2") == "1"
+then
 	ui_print(" - fsync disabled");
     package_extract_dir("tweak/fsync", "/system");
 endif;
 if
-    file_getprop("/tmp/aroma/tweak.prop","item.3.2") == "1"
+    file_getprop("/tmp/aroma/tweak.prop","item.3.3") == "1"
 then
 	ui_print(" - Sotfware Rendering disabled");
     package_extract_dir("tweak/gpu", "/system");
 endif;
 if
-    file_getprop("/tmp/aroma/tweak.prop","item.3.3") == "1"
+    file_getprop("/tmp/aroma/tweak.prop","item.3.4") == "1"
 then
 	ui_print(" - CPU Under-Volted");
     package_extract_dir("tweak/uv", "/system");
 endif;
 if
-    file_getprop("/tmp/aroma/tweak.prop","item.3.4") == "1"
+    file_getprop("/tmp/aroma/tweak.prop","item.3.5") == "1"
 then
 	ui_print(" - CPU Over-Volted");
     package_extract_dir("tweak/ov", "/system");
 endif;
 if
-    file_getprop("/tmp/aroma/tweak.prop","item.3.5") == "1"
+    file_getprop("/tmp/aroma/tweak.prop","item.3.6") == "1"
 then
 	ui_print(" - GPU Under-Volted");
     package_extract_dir("tweak/gpuuv", "/system");
 endif;
 if
-    file_getprop("/tmp/aroma/tweak.prop","item.3.6") == "1"
+    file_getprop("/tmp/aroma/tweak.prop","item.3.7") == "1"
 then
     ui_print(" - Cache2SD enabled");
     package_extract_dir("tweak/cache2sd/system", "/system");

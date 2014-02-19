@@ -371,6 +371,7 @@ checkbox(
 	"Xposed Framework + Gravity Box","Allows you to apply many tweaks found in Xposed Modules",0,
  
 	"Hard Core Tweaks - Install with caution - experimental!","","2",
+	"Switch Performance and Balanced CPU modes","Device will boot into performance mode by default","0",
 	"IO Tweak: Disable fsync","Speeds up IO read/writes to internal SD but can cause data corruption","0",
 	"GPU Rendering : Disable Software Rendering","Forces rendering to be done by GPU rather than CPU","0",
 	"CPU UV : Under-Volt CPU by 50mV","Better battery life but can cause instability especially if over-clocking","0",

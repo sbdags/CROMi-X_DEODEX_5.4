@@ -5,6 +5,8 @@ o	Reverted Framework (framework.jar, services.jar, systemui.apk, transformer.apk
 o	Modded systemui.apk and transformer.apk to allow sd card and dock notifications to be removed as an option in installer
 o	Rebuilt Stock Launcher Lite version -  3 Screens ONLY, New Beach Wallpaper, 4.2 Gui gets 9x6 workspace and draw icons, removed google bar and page indicator
 o	Fixed framework-res.apk wallpaper inconsistencies. Tree definitely gone now and beach wallpaper formatted correctly
+o	Added installer option to switch balanced and performance profiles around. So if you choose balanced you actually get performance which means it also boots to performance
+o	Changed entropy settings to stop kernel rebuilding entropy_avail - result should be less lag
 o	Updated _that's OC kernel to version 8
 o	Updated Hunds' kernel to version 3.4.5
 o	Updated LetMeKnow's ET to Hunds' 3.4.5 kernel
@@ -14,7 +16,7 @@ o	Updated Google Maps to version 7.6.1
 o	Updated Google Music to version 5.4.1409N
 o	Updated Google Now to version 3.2.17
 o	Updated Superuser and binary to latest version 1.93
-o	Updated ES File Explorer to version 3.1.0.1
+o	Updated ES File Explorer to version 3.1.0.2
 o	Updated Asus Web Storage to version 2.1.3.7556
 o	Updated Google Mail to version 4.7.2
 o	Fixed issue of ET installation locked into 213 DPI
