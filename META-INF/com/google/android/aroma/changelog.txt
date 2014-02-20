@@ -23,6 +23,7 @@ o	Fixed issue of ET installation locked into 213 DPI
 o	Fixed search options missing - Reinstated QuickSearch from Asus
 o	Minor build.prop fix to remove duplicate entry
 o	Fixed build.prop for TF300T US users as it was showing the wrong version
+o	Added ODEX binary and script to installer so can be done on install now
 
 <b><#selectbg_g>18/01/2014 - v5.3 CROMi-X</#></b>
 o	Recompiled framework-res.apk with TF701T default wallpaper. Goodbye Asus Tree ;)
