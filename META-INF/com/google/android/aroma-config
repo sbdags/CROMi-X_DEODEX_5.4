@@ -22,10 +22,10 @@ ini_set("dp","4");
 
 theme("cromix");
 ini_set("rom_name",              "CROMi-Xenogenesis");
-ini_set("rom_version",           "5.4");
+ini_set("rom_version",           "5.4 DEODEX");
 ini_set("rom_author",            "sbdags");
 ini_set("rom_device",            "Asus Transformer TF700T/TF300T(GL)/TF201/ME301T");
-ini_set("rom_date",              "20/02/2014");
+ini_set("rom_date",              "22/02/2014");
 
 splash(
    3000,
@@ -91,16 +91,6 @@ textbox(
   "Changelog",
   "@update",
   resread("changelog.txt")
-);
-
-selectbox(
-  "DEODEX or ODEX",
-  "Must Choose One!",
-  "@customize",
-  "odex.prop",
-  "CROMi-X DEODEX Version","Dalvik cache built on first boot",0,
-  "CROMi-X ODEX Version","Faster first boot and no theming",0
-  
 );
 
 #Flash Options

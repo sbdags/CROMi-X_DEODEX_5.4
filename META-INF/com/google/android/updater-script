@@ -1023,19 +1023,7 @@ endif;
 ui_print("Installing build.prop");
 run_program ("/sbin/sh", "/tmp/upd-build-prop.sh");
 
-ui_print("Finalising ROM");
-#-- Odex Script --#
-
-if
-  file_getprop("/tmp/aroma-data/odex.prop","selected.0") == "2"
-then
-	ui_print(" - Odexing .....");
-	package_extract_dir("tweak/odex", "/data/local/tmp/odex");
-	set_perm_recursive(0, 2000, 0755, 0755, "/data/local/tmp/odex");
-	run_program("/data/local/tmp/odex/sh", "/data/local/tmp/odex/odex");
-	run_program("/data/local/tmp/odex/sh", "/data/local/tmp/odex/odex-update.sh");
-endif;
-
+ui_print("Finalising ROM.....");
 set_progress(0.99);
 #unmount("/data");
 unmount("/system");
